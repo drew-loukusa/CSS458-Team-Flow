@@ -153,3 +153,17 @@ def init_paths(atc_object):
 	"""
 	pass
 #======================== END SIMULATION METHODS =============================#
+
+#-jet variable with the name, coordinates, and the status(False-in air, true-on ground)
+j1 = jet("CA111", 25, 50, False)
+j = jet("AA302", 40, 10, True)
+
+A = ATC()
+
+A.land.append(j1)
+A.take_off.append(j2)
+r1 = runway()
+r1.timestamp()
+A.takeOff(r1)
+r1.timestamp()
+A.land(j1)
