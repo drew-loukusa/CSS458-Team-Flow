@@ -47,11 +47,17 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 	def update(jet):
 		pass
 	def landing(self, runway):
+		#-if runway is locked, the jet can land in a timely fashion. 
 		if runway.lock.loced():
 			hold = Time(10, land, runway)
 			hold.start()
 			print("Jet in hold")
 		else:
+		#-else, the current jet will be listed into the first one in the queue
+			#[current]jets = cur
+			cur = self.jets_land.enqueue(0)
+			time.sleep(10)
+			runway.landingComplete(cur)
 	def taking_off(self, runway):
 		if runway.lock.locked():
 			pass
