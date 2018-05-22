@@ -8,10 +8,6 @@ import datetime
 
 class Runway(threading.Thread):
 
-    def timestamp(self):
-        print(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
-
-
     def __init__(self):
         threading.Thread.__init__(self)
         self.lock = threading.Lock()
@@ -28,11 +24,15 @@ class Runway(threading.Thread):
         self.timestamp()
         self.clearRunway()
 
-    def landing(self, plane):
+    def landing(self, ATC):
         self.lock.acquire()
         time.sleep(5)
         print("Jet %s has landed\n" %jet.name)
         self.timestamp()
         self.clearRunway()
+        
+     def timestamp(self):
+        print(datetime.datetime.fromtimestamp(time.time()).strftime(''))
+
 
    
