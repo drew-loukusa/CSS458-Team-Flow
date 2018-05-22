@@ -3,6 +3,7 @@
 #=========================== SIMULATION OBJECTS ==============================#
 class Jet:	#Base jet class
 	def __init__(self):	
+		self.name;              #AA302
 		self.fuel;			#In gallons?		
 		self.weight;		#In pounds
 		self.emg_status;	#Emergency Status
@@ -43,6 +44,17 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 
 	def update(jet):
 		pass
+	def landing(self, runway):
+		if runway.lock.loced():
+			hold = Time(10, land, runway)
+			hold.start()
+			print("Jet in hold")
+		else:
+	def taking_off(self, runway):
+		if runway.lock.locked():
+			pass
+		else:
+		#- it will be listed as the first jet on the runway
 
 
 class Terminal: #Base Terminal class
