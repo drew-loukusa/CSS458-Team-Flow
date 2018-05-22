@@ -23,6 +23,7 @@
   <ItemGroup>
     <Compile Include="Airport_Simulation.py" />
     <Compile Include="classes.py" />
+    <Compile Include="Runway.py" />
     <Compile Include="sim_driver.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

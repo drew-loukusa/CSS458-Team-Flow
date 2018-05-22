@@ -35,7 +35,7 @@ def airport_sim():
 	tower = ATC()
 	
 	#Step 2: Initilize Terminals
-	init_terminals(tower)
+	init_gates(tower)
 
 	#Step 3: Initilize Jets - Passenger and Cargo	
 	init_jets(tower)
@@ -72,7 +72,7 @@ def airport_sim():
 #============================ END SIMULATION =================================#
 
 #========================== SIMULATION METHODS ===============================#
-def init_terminals(atc_object):
+def init_gates(atc_object):
 	"""Create 80 Gates:
 		- 14 A Gates: Numbered 1 - 14 
 		- 11 B Gates: Numbered 3 - 14
