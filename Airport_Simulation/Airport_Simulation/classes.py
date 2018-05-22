@@ -28,18 +28,18 @@ class C_Jet(Jet): #Cargo jet
 
 
 class ATC:					#Air Traffic Control: Serves as main logic controller of simulation
-	def __init__(self):
-		self.jets = []		#List of all jets in simulation
-		
+	def __init__(self):		
 		#We don't NEED a seperate list for each Airport process status but I'm leaving them here for now:
 		#It might make it easier later to do it this way.
+		self.jets = []			#List of all jets in simulation
 		self.jets_air  = []
 		self.jets_hold = []		#This should be treated as a queue: FIFO
 		self.jets_land = []		
 		self.jets_taxi = []		
 		self.jets_term = []
 		self.jets_take = []
-		self.terminals = []	#List of all terminals at the airport
+		self.terminals = []		#List of all terminals at the airport
+		self.paths = [] 
 
 	def update(jet):
 		pass
@@ -81,12 +81,6 @@ class C_Terminal(Terminal): #Cargo Terminal
 
 	def load_cargo(self, jet):
 		pass
-
-
-
-class Path:
-	def __init__(self):
-		self.path = []		#List of points which make up the path
 
 #=========================== SIMULATION OBJECTS ==============================#
 

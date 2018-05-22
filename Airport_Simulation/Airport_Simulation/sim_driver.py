@@ -14,6 +14,7 @@ TIME_TICKS		= 1440  #In minutes
 NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time X. 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
+							# 50 X by 120 Y ? 
 
 #========================== END GLOBAL CONSTANTS =============================#
 
@@ -118,5 +119,37 @@ def init_jets(atc_object):
 	pass
 
 def init_paths(atc_object):
+	""" TODO: Gridsize is 50 x 120
+		Each runway, taxiway will have it's own defined path.
+		Each path consists of a list of tuples where each tuple is an x,y pair and a slot for a jet:
+		A point in a path will look like: ((x,y), jet) 
+		
+		Basically, each point in a path has the ability to "hold" a jet object. All paths will be kept inside a list
+		held by the ATC object. This is so the ATC object can look through a path and see if there are any jets on that 
+		path before sending another jet down it. 
+
+		These paths will be defined according to our grid, most will be hardcoded. 
+
+		Most of these paths will have to be hand coded. We can generate some of the stricly vertical and 
+		horizontal ones using numpy maybe? 
+	
+		An adjecency list will also need to be created to maintain what paths connect to what.
+		See Example: 
+
+										Path B
+										  |
+										  |
+										  |
+										  |
+										  |
+		Path A: ------------------------- + -------------------------------- Path C
+										(2, 2)
+		Paths A, B, and C intersect at (2, 2). All paths will have the point (2,2) in their list. 
+		The adjency list will be like this:
+			1. [(A, [B, C]), (B, [A, C]), (C, [B, A])]  
+			2. Select path A, east end
+			3. Path A, east end connects to: Path B South end, Path C west end.
+				
+	"""
 	pass
 #======================== END SIMULATION METHODS =============================#
