@@ -1,11 +1,11 @@
 
 import time
-from Runday import Runway as runway
+import Runway as runway
 from threading import *
 #=========================== SIMULATION OBJECTS ==============================#
 class Jet:	#Base jet class
 	def __init__(self):	
-		self.name;              #AA302
+		self.name;			#AA302
 		self.fuel;			#In gallons?		
 		self.weight;		#In pounds
 		self.emg_status;	#Emergency Status
@@ -46,20 +46,29 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 
 	def update(jet):
 		pass
+
 	def landing(self, runway):
+		#-if runway is locked, the jet can land in a timely fashion. 
 		if runway.lock.loced():
 			hold = Time(10, land, runway)
 			hold.start()
 			print("Jet in hold")
 		else:
+		#-else, the current jet will be listed into the first one in the queue
+			#[current]jets = cur
+			cur = self.jets_land.enqueue(0)
+			time.sleep(10)
+			runway.landingComplete(cur)
+
 	def taking_off(self, runway):
 		if runway.lock.locked():
 			pass
 		else:
+			pass
 		#- it will be listed as the first jet on the runway
 
 
-class Terminal: #Base Terminal class
+class Gate: #Base Terminal class
 	def __init__(self, x,y):
 		self.loc = (x,y)	#Location of terminal
 		self.jet;			#Each terminal can hold a single jet		
@@ -69,7 +78,7 @@ class Terminal: #Base Terminal class
 		pass
 
 
-class P_Terminal(Terminal): #Passenger Terminal
+class P_Gate(Gate): #Passenger Terminal
 	def __init__(self):
 		pass
 
@@ -83,7 +92,7 @@ class P_Terminal(Terminal): #Passenger Terminal
 		pass					#This takes TIME_TO_BOARD amount of time
 	
 	
-class C_Terminal(Terminal): #Cargo Terminal
+class C_Gate(Gate): #Cargo Terminal
 	def __init__(self):
 		pass
 
