@@ -1,5 +1,7 @@
 
-
+import time
+from Runday import Runway as runway
+from threading import *
 #=========================== SIMULATION OBJECTS ==============================#
 class Jet:	#Base jet class
 	def __init__(self):	
@@ -45,18 +47,21 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 	def update(jet):
 		pass
 	def landing(self, runway):
+		#-if runway is locked, the jet can land in a timely fashion. 
 		if runway.lock.loced():
 			hold = Time(10, land, runway)
 			hold.start()
 			print("Jet in hold")
 		else:
-			pass
-
+		#-else, the current jet will be listed into the first one in the queue
+			#[current]jets = cur
+			cur = self.jets_land.enqueue(0)
+			time.sleep(10)
+			runway.landingComplete(cur)
 	def taking_off(self, runway):
 		if runway.lock.locked():
 			pass
 		else:
-			pass
 		#- it will be listed as the first jet on the runway
 
 
