@@ -72,17 +72,17 @@ def airport_sim():
 
 #========================== SIMULATION METHODS ===============================#
 def init_terminals(atc_object):
-	"""Create 80 Terminals:
-		- 14 A Terminals: Numbered 1 - 14 
-		- 11 B Terminals: Numbered 3 - 14
-		- 12 C Terminals: Numbered 2 - 3, 9 - 12, 14 - 18, 20
-		- 11 D Terminals: Numbered 1 - 11
-		- 23 Cargo "terminals" Not numbered 		
+	"""Create 80 Gates:
+		- 14 A Gates: Numbered 1 - 14 
+		- 11 B Gates: Numbered 3 - 14
+		- 12 C Gates: Numbered 2 - 3, 9 - 12, 14 - 18, 20
+		- 11 D Gates: Numbered 1 - 11
+		- 23 Cargo "Gates" Not numbered 		
 
-		All terminals will be initilized with CUSTOM COORDINATES to match their
+		All gates will be initilized with CUSTOM COORDINATES to match their
 		real life location. 
 
-		Each Terminal is added to the atc_objects' list of terminals
+		Each gate is added to the atc_objects' list of terminals
 		"""
 
 	# Passenger Terminals are initilized as P_Terminal
