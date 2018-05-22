@@ -1,3 +1,6 @@
+
+# Helps to visualize the dimension and pixel based position of objects.
+
 import pylab as plt
 
 # Load the image

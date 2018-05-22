@@ -17,8 +17,7 @@ class Jet:	#Base jet class
 		self.altitude;		#In Feet
 		self.burn_rate;		#Gallons per hour?
 		self.history = []	#Stores each of the preceding variables for each time step of simulation
-
-
+		
 class P_Jet(Jet): #Passenger jet
 	def __init__(self):
 		self.passengers;	#Number of passengers. Avg weight will be 150 Lb per passenger
