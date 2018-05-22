@@ -122,7 +122,7 @@ def init_paths(atc_object):
 	""" TODO: Gridsize is 50 x 120
 		Each runway, taxiway will have it's own defined path.
 		Each path consists of a list of tuples where each tuple is an x,y pair and a slot for a jet:
-		A point in a path will look like: ((x,y), jet) 
+		A point in a path will look like: [(x,y), jet, direction] 
 		
 		Basically, each point in a path has the ability to "hold" a jet object. All paths will be kept inside a list
 		held by the ATC object. This is so the ATC object can look through a path and see if there are any jets on that 

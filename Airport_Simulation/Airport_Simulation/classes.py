@@ -50,10 +50,13 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 			hold.start()
 			print("Jet in hold")
 		else:
+			pass
+
 	def taking_off(self, runway):
 		if runway.lock.locked():
 			pass
 		else:
+			pass
 		#- it will be listed as the first jet on the runway
 
 
