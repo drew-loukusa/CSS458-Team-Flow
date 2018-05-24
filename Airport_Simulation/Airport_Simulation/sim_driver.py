@@ -15,7 +15,7 @@ NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
 							# 50 X by 120 Y ? 
-
+PATHS = []				#List of all paths at the airport
 #========================== END GLOBAL CONSTANTS =============================#
 
 
@@ -91,6 +91,10 @@ def init_gates(atc_object):
 	# Each terminal will be added to the ATC objects list of terminals by appending it to the list
 	#
 	# Example: atc_object.terminals.append(terminal) 
+
+	#INITAL TEST: 1 Cargo gate at the top of the airport (33, 113)
+	test_gate = C_Gate(33, 113)
+	atc_object.gates.append(test_gate)
 	
 	pass
 
@@ -112,13 +116,16 @@ def init_jets(atc_object):
 
 		Most will be passenger jets, some will be cargo jets.
 	"""
-
+	test_jet = C_Jet("TEST 747", 1000, 398000, 33, 113)
+	atc_object.jets.append(test_jet)
+	
 	# Passenger jets are initilized as P_Jet, cargo jets as C_Jet.
 	# Each jet will be added to the appropriate 
 	# Just like with terminals
 	pass
 
-def init_paths(atc_object):
+def init_paths(atc_object): #We may want to call this in the GLOBAL CONSTANTS section instead of in the simulaiton method. This to ensure they are global and copies don't get 
+							#Passed around
 	""" TODO: Gridsize is 50 x 120
 		Each runway, taxiway will have it's own defined path.
 		Each path consists of a list of tuples where each tuple is an x,y pair and a slot for a jet:
@@ -148,22 +155,111 @@ def init_paths(atc_object):
 		The adjency list will be like this:
 			1. [(A, [B, C]), (B, [A, C]), (C, [B, A])]  
 			2. Select path A, east end
-			3. Path A, east end connects to: Path B South end, Path C west end.
-				
+			3. Path A, east end connects to: Path B South end, Path C west end.				
 	"""
+
+	# NOTE:	Diagonal paths need to be handeled slightly differently than horizontal paths or vertical paths 
+	#		Moving 1 left then 1 up is not the same as moving diagonally to the same end loc. The diagonal path is "faster" Dicuss this with group.
+
+	#		A possible solution: Don't have diagonal paths, kinda. If you have to curve or do a diagonal path, you just break it up into up down left right movements.
+	#		This way we don't have to deal with this weird case of a diagonal being "faster". We'll talk.
+
+	#TEST PATH: Hardcoded path from Cargo ramp at (33, 113) to top of runaway right. 
+	direction = "None"
+	jet = False
+	test_path = [[(33, 113), jet, direction],[(32, 113), jet, direction],[(31, 113), jet, direction],[(30, 113), jet, direction], [(29, 113), jet, direction]]
+	atc_object.paths.append(test_path)
 	pass
+
+def genSeg(st, ed, dir = "None"):
+	"""	Method for generateing individual sections of a path.		
+		Args: 
+		* st	: A tuple (x,y), the start location of the segment
+		* ed	: A tuple (x,y), the end location of the segment
+		* dir	: A string, the direction of travel for that segment if appliciable (some paths don't have that restriction)
+
+		! NOTE ! : This should only be used to create segments that are horizontal, vertical and paths that have a slope of 1:1. 
+					This method cannot handle creating segments which have a slope of say, 5:1 (Not yet anyways).		
+
+		RETURNS:	A list of points that can be taken and put into a path. The points that are returned in the list from this 
+					method are the points that are described in init_paths: [(x,y), jet, direction]
+		
+		! NOTE  ! : This method will return an empty list if you try to use it to generate a segment that has a slope other than 0, OO, or 1.
+		
+	"""
+	dif_x = ed[0] - st[0]
+	dif_y = ed[1] - st[1]
+	jet = False
+	seg = []
+	dt = 1
+
+	abs_x = abs(dif_x)
+	abs_y = abs(dif_y)
+
+	#If generating horizontal segment:
+	if(abs_x > 0 and abs_y == 0):
+		seg.append([st,jet, dir])
+		if(dif_x < 0):
+			dt = - 1
+		for i in range(abs_x):
+			last = seg[i][0]
+			seg.append([(last[0] + dt, last[1]), jet, dir])		
+
+	#If generating vertical segment:
+	elif(abs_y > 0 and abs_x == 0):
+		seg.append([st,jet, dir])
+		if(dif_y < 0):
+			dt = -1
+		for i in range(abs_y):
+			last = seg[i][0]
+			seg.append([(last[0], last[1] + dt), jet, dir])		
+	
+	#If generating diagonal segment: Currently this creates actual diagonal paths not sudo-diagonal (jagged)
+	elif(abs_x > 0 and abs_y > 0):
+		dt_x, dt_y = 1,1
+		if(dif_x < 0):
+			dt_x = -1
+		if(dif_y < 0):
+			dt_y = -1
+		if(abs_x == abs_y):
+			seg.append([st,jet, dir])
+			for i in range(abs_x):
+				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, dir])
+
+	return seg
+	
 #======================== END SIMULATION METHODS =============================#
 
 #-jet variable with the name, coordinates, and the status(False-in air, true-on ground)
-j1 = jet("CA111", 25, 50, False)
-j = jet("AA302", 40, 10, True)
+#j1 = jet("CA111", 25, 50, False)
+#j = jet("AA302", 40, 10, True)
 
-A = ATC()
+#A = ATC()
 
-A.land.append(j1)
-A.take_off.append(j2)
-r1 = runway()
-r1.timestamp()
-A.takeOff(r1)
-r1.timestamp()
-A.land(j1)
+#A.land.append(j1)
+#A.take_off.append(j2)
+#r1 = runway()
+#r1.timestamp()
+#A.takeOff(r1)
+#r1.timestamp()
+#A.land(j1)
+
+def main():
+	#airport_sim()	
+	start = (10, 0)
+	end = (0,0)
+	segment = genSeg(start, end)
+	tjet = Jet("TestJet", 5000, 300000, "No stat lol", 0, 0)
+	print(tjet.name)
+	segment[0][1] = tjet;
+	print(segment)
+	print("\n")
+	print(segment[0][1].name)
+	print("\n")
+
+	segment[0][1] = False
+	segment[1][1] = tjet
+
+	print(segment)
+
+main()

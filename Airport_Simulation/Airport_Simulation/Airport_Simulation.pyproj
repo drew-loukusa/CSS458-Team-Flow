@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>e6467898-1a4f-4c0d-9167-feb26eeffb09</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Airport_Simulation.py</StartupFile>
+    <StartupFile>sim_driver.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

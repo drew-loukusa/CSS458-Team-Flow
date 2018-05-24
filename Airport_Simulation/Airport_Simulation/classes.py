@@ -2,31 +2,36 @@
 import time
 import Runway as runway
 from threading import *
-#=========================== SIMULATION OBJECTS ==============================#
+#=========================== SIMULATION OBJECTS ==============================# 
+
+# NOTE: I have commented out some Jet class variables so I can get some basic implemenation done. 
+#		Will be added back in later as needed? 
+
 class Jet:	#Base jet class
-	def __init__(self):	
-		self.name;			#AA302
-		self.fuel;			#In gallons?		
-		self.weight;		#In pounds
-		self.emg_status;	#Emergency Status
-		self.apt_status;	#Process Status
-		self.atc_status;	#ATC Status
-		self.location;		#Tuple (x,y)
-		self.heading;		#In degrees (0 - 360)
-		self.speed;			#Ground speed (MPH) ?
-		self.altitude;		#In Feet
-		self.burn_rate;		#Gallons per hour?
-		self.history = []	#Stores each of the preceding variables for each time step of simulation
+	def __init__(self, name, fuel, weight, apt_status, x, y):	
+		self.name	= name		#AA302
+		self.fuel	= fuel		#In gallons?		
+		self.weight	= weight	#In pounds
+		#self.emg_status			#Emergency Status
+		self.apt_status	 = apt_status  #Process Status
+		#self.atc_status			#ATC Status
+		self.location	= (x,y)	#Tuple (x,y)
+		#self.heading			#In degrees (0 - 360)
+		#self.speed				#Ground speed (MPH) ?
+		#self.altitude			#In Feet
+		#self.burn_rate			#Gallons per hour? 
+		#self.history = []		#Stores each of the preceding variables for each time step of simulation
 		
 class P_Jet(Jet): #Passenger jet
-	def __init__(self):
-		self.passengers;	#Number of passengers. Avg weight will be 150 Lb per passenger
+	def __init__(self, name, fuel, weight, x, y):
+		self.passengers		#Number of passengers. Avg weight will be 150 Lb per passenger
 		self.ploy = TIME_TO_BOARD
 
 
 class C_Jet(Jet): #Cargo jet 
-	def __init__(self):
-		self.cargo;			#In pounds
+	def __init__(self, name, fuel, weight, x, y):
+		super(C_Jet, self).__init__(name, fuel, weight, x,y)		
+		self.cargo			#In pounds
 
 
 class ATC:					#Air Traffic Control: Serves as main logic controller of simulation
@@ -40,7 +45,7 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 		self.jets_taxi = []		
 		self.jets_term = []
 		self.jets_take = []
-		self.terminals = []		#List of all terminals at the airport
+		self.gates = []			#List of all gates at the airport
 		self.paths = [] 
 
 	def update(jet):
@@ -92,8 +97,8 @@ class P_Gate(Gate): #Passenger Terminal
 	
 	
 class C_Gate(Gate): #Cargo Terminal
-	def __init__(self):
-		pass
+	def __init__(self, x, y):
+		self.loc = (x,y)
 
 	def unload_cargo(self, jet):
 		pass
