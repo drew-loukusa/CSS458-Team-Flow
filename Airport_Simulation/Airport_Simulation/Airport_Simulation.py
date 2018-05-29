@@ -21,6 +21,7 @@ def main():
 	screen.setup(800, 1000)
 	screen.bgpic("airport.png")
 
+
 	move_speed = 10
 	turn_speed = 10
 
@@ -39,7 +40,7 @@ def main():
 
 	turt.fd(10)
 
-	time.sleep(30)
+	#time.sleep(30)
 	T.speed(0)
 	T.home()
 
