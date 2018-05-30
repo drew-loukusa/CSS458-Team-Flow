@@ -5,11 +5,14 @@
 #The time is counted at each minute
 #There is a rush time probability, and a regular probability
 
+#Average takeoff takes 30-35 seconds, without taking alignment with the runway time
+#Average landing time at SEA-TAC = 1.2 minutes or 72 seconds
+
 import random
 
 TYPE_P = "PASSANGER"
 TYPE_C = "CARGO"
-TIME_LANDING = 3				#in minutes
+TIME_LANDING = 1				#in minutes
 TIME_LANDING_DEVIATION = 1	
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
@@ -27,7 +30,7 @@ class Gap: 		#Will be appended to the distribution list
         self.runway = runwayIn			#the runway on which this gap is available
 
 		
-def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=100000, regular_plane_prob=0.6, high_plane_prob=0.8):
+def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.6, high_plane_prob=0.8):
     """ - The hours parameters has to be given in Military Time:"
     		   MIN: 0
 		      MAX: 24
@@ -37,8 +40,6 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=100000, r
 			   MAX: 1
     """
 	
-    TIME_LANDING = 2				#in minutes
-    TIME_LANDING_DEVIATION = 1	
     MORNING_RUSH_RANGE = (360, 600)		#these are the start and end in minutes of morning rush hour. 06:00 - 10:00 Military
     EVENING_RUSH_RANGE = (840, 1200)  #these are the start and end in minutes of evening rush hour. 14:00 - 20:00
     
@@ -142,15 +143,18 @@ def generateLanding():
 
 def generateGap():
     tempRunway = random.randint(1,3)
-    tempGapTime = random.randint(1,2)
+    tempGapTime = 1
           
     retGap = Gap(tempGapTime, tempRunway)
     return (tempGapTime, retGap)
     
 #Test
 lCount, gCount, CM, landings = GeneratePlaneDistribution()
-print("Landings:" + str(lCount))
-print("Gaps:" + str(gCount))
-print("TotalMinutes:" + str(CM))
+possibleAircraftOperations = gCount + lCount
+print("Landings: " + str(lCount))
+print("Gaps: " + str(gCount))
+print("Total (Landings + Potential Takeoffs): " + str(possibleAircraftOperations))
+print("Goal for total AircraftOperations: 1139 +- 20")
+print("TotalMinutes: " + str(CM))
 print()
 #print(landings)
