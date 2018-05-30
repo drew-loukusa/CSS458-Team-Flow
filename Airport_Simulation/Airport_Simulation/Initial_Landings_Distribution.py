@@ -69,9 +69,26 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, plane_limit=100000, reg
                 else:  
                     tempGap = generateGap
                     distribution.append(tempGap)
+                    
+            if (currentMinutes >= EVENING_RUSH_RANGE(0) AND currentMinutes <= EVENING_RUSH_RANGE(1)):
+                
+                LandingChance = RandP()
+                if(LandingChance > HPP)                                       
+                    tempLanding = generateLanding() 
+                    distribution.append(tempLanding)
+                    
+                else:  
+                    tempGap = generateGap
+                    distribution.append(tempGap)
                 
         else:
-            tempGap = generateGap
+            tempRunway = random.randint(1,3)
+            tempGapTime = total_minutes - currentMinutes
+    
+            currentMinutes += tempGapTime
+            gapCount += 1
+    
+            tempGap = Gap(tempGapTime, tempRunway)
             distribution.append(tempGap)
         
 		
@@ -95,7 +112,8 @@ def generateLanding():
     tempTime = round(RandP()) + TIME_LANDING   
     print(tempDeviation)
     
-    
+    currentMinutes += tempTime
+    landingCount += 1
                     
     retLanding = Landing(tempTime, tempRunway, tempPlaneType)
     return retLanding
@@ -104,8 +122,13 @@ def generateLanding():
 def generateGap():
     tempRunway = random.randint(1,3)
     tempGapTime = random.randint(2,5)
+    
+    currentMinutes += tempGapTime
+    gapCount += 1
+    
     retGap = Gap(tempGapTime, tempRunway)
     return retGap
     
 #Test
-GeneratePlaneDistribution()
+landings = GeneratePlaneDistribution()
+print(landings)
