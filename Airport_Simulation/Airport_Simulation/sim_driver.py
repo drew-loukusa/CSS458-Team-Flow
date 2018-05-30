@@ -14,7 +14,9 @@ TIME_TICKS		= 1440  #In minutes
 NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time X. 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
-							# 50 X by 120 Y ? 
+							# 100 X by 240 Y ? 
+#Step 4: Initilize paths
+init_paths(PATHS)
 PATHS = []				#List of all paths at the airport
 #========================== END GLOBAL CONSTANTS =============================#
 
@@ -39,12 +41,11 @@ def airport_sim():
 
 	#Step 3: Initilize Jets - Passenger and Cargo	
 	init_jets(tower)
-
-	#Step 4: Initilize paths
-	init_paths(tower)
-
+	
 	#Step 5: Start Time
-	for i in range(TIME_TICKS):
+	#for i in range(TIME_TICKS):
+	for i in range(5):
+		tower.update_jets()
 		# For each plane in the sim:
 			# For planes in the air:
 				# Location will be updated based on heading and speed
@@ -67,7 +68,7 @@ def airport_sim():
 			# For planes that are at a terminal:
 			# Refuel the plane: Planes fuel will be updated
 			# Board passengers or cargo 
-		pass
+		#pass
 
 #============================ END SIMULATION =================================#
 
@@ -116,7 +117,7 @@ def init_jets(atc_object):
 
 		Most will be passenger jets, some will be cargo jets.
 	"""
-	test_jet = C_Jet("TEST 747", 1000, 398000, 33, 113)
+	test_jet = Jet("TEST 747", 1000, 398000, 0, 0, 0)
 	atc_object.jets.append(test_jet)
 	
 	# Passenger jets are initilized as P_Jet, cargo jets as C_Jet.
@@ -124,12 +125,22 @@ def init_jets(atc_object):
 	# Just like with terminals
 	pass
 
-def init_paths(atc_object): #We may want to call this in the GLOBAL CONSTANTS section instead of in the simulaiton method. This to ensure they are global and copies don't get 
+def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section instead of in the simulaiton method. This to ensure they are global and copies don't get 
 							#Passed around
-	""" TODO: Gridsize is 50 x 120
+	""" ARGS: PATHS, the global list that holds paths
+	
+	TODO: Gridsize is 50 x 120
 		Each runway, taxiway will have it's own defined path.
 		Each path consists of a list of tuples where each tuple is an x,y pair and a slot for a jet:
-		A point in a path will look like: [(x,y), jet, direction] 
+		A point in a path will look like: 
+
+		PATH LIST FORMAT:
+
+		PATHS ARE NOW OBJECTS AGAIN
+		
+		Format: [[(x,y), jet],[(x,y), jet],[(x,y), jet]] 
+				
+		FORMAT OF ENTRY FOR EACH POINT:	[(x,y), jet] 
 		
 		Basically, each point in a path has the ability to "hold" a jet object. All paths will be kept inside a list
 		held by the ATC object. This is so the ATC object can look through a path and see if there are any jets on that 
@@ -165,13 +176,18 @@ def init_paths(atc_object): #We may want to call this in the GLOBAL CONSTANTS se
 	#		This way we don't have to deal with this weird case of a diagonal being "faster". We'll talk.
 
 	#TEST PATH: Hardcoded path from Cargo ramp at (33, 113) to top of runaway right. 
+
+	#ALSO NEED TO CREATE A "EDGE LIST" for what paths share which path share which points and what not
+
 	direction = "None"
-	jet = False
-	test_path = [[(33, 113), jet, direction],[(32, 113), jet, direction],[(31, 113), jet, direction],[(30, 113), jet, direction], [(29, 113), jet, direction]]
-	atc_object.paths.append(test_path)
+	a = genSeg((0,0), (5,0), dir = "East")
+	b = genSeg((5,0), (5,5), dir = "North")
+	PATHS.append(a)
+	PATHS.append(b)
+	jet = False		
 	pass
 
-def genSeg(st, ed, dir = "None"):
+def genSeg(st, ed, label, dir = "None"):
 	"""	Method for generateing individual sections of a path.		
 		Args: 
 		* st	: A tuple (x,y), the start location of the segment
@@ -181,8 +197,8 @@ def genSeg(st, ed, dir = "None"):
 		! NOTE ! : This should only be used to create segments that are horizontal, vertical and paths that have a slope of 1:1. 
 					This method cannot handle creating segments which have a slope of say, 5:1 (Not yet anyways).		
 
-		RETURNS:	A list of points that can be taken and put into a path. The points that are returned in the list from this 
-					method are the points that are described in init_paths: [(x,y), jet, direction]
+		RETURNS:	An object with list of points (and a label and a direction) that can be taken and put into a path. The points that are returned in the list from this 
+					method are the points that are described in init_paths: [(x,y), jet]
 		
 		! NOTE  ! : This method will return an empty list if you try to use it to generate a segment that has a slope other than 0, OO, or 1.
 		
@@ -198,12 +214,12 @@ def genSeg(st, ed, dir = "None"):
 
 	#If generating horizontal segment:
 	if(abs_x > 0 and abs_y == 0):
-		seg.append([st,jet, dir])
+		seg.append([st,jet])
 		if(dif_x < 0):
 			dt = - 1
 		for i in range(abs_x):
 			last = seg[i][0]
-			seg.append([(last[0] + dt, last[1]), jet, dir])		
+			seg.append([(last[0] + dt, last[1]), jet])		
 
 	#If generating vertical segment:
 	elif(abs_y > 0 and abs_x == 0):
@@ -212,7 +228,7 @@ def genSeg(st, ed, dir = "None"):
 			dt = -1
 		for i in range(abs_y):
 			last = seg[i][0]
-			seg.append([(last[0], last[1] + dt), jet, dir])		
+			seg.append([(last[0], last[1] + dt), jet])		
 	
 	#If generating diagonal segment: Currently this creates actual diagonal paths not sudo-diagonal (jagged)
 	elif(abs_x > 0 and abs_y > 0):
@@ -222,11 +238,18 @@ def genSeg(st, ed, dir = "None"):
 		if(dif_y < 0):
 			dt_y = -1
 		if(abs_x == abs_y):
-			seg.append([st,jet, dir])
+			seg.append([st,jet])
 			for i in range(abs_x):
-				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, dir])
+				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet])
 
-	return seg
+	path = Path(label, dir, seg)
+	return path
+
+def updatePathDir(PATHS):
+	"""Update the direction of directed paths that change when runways switch direction. 
+		ARS: PATHS = Global list of paths
+	"""
+	pass
 	
 #======================== END SIMULATION METHODS =============================#
 
@@ -245,21 +268,21 @@ def genSeg(st, ed, dir = "None"):
 #A.land(j1)
 
 def main():
-	#airport_sim()	
-	start = (10, 0)
-	end = (0,0)
-	segment = genSeg(start, end)
-	tjet = Jet("TestJet", 5000, 300000, "No stat lol", 0, 0)
-	print(tjet.name)
-	segment[0][1] = tjet;
-	print(segment)
-	print("\n")
-	print(segment[0][1].name)
-	print("\n")
+	##airport_sim()	
+	#start = (10, 0)
+	#end = (0,0)
+	#segment = genSeg(start, end)
+	#tjet = Jet("TestJet", 5000, 300000, "No stat lol", 0, 0)
+	#print(tjet.name)
+	#segment[0][1] = tjet;
+	#print(segment)
+	#print("\n")
+	#print(segment[0][1].name)
+	#print("\n")
 
-	segment[0][1] = False
-	segment[1][1] = tjet
+	#segment[0][1] = False
+	#segment[1][1] = tjet
 
-	print(segment)
+	#print(segment)
 
-main()
+#main()

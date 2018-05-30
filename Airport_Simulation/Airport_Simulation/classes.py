@@ -2,20 +2,22 @@
 import time
 import Runway as runway
 from threading import *
+from sim_driver import *
 #=========================== SIMULATION OBJECTS ==============================# 
 
 # NOTE: I have commented out some Jet class variables so I can get some basic implemenation done. 
 #		Will be added back in later as needed? 
 
 class Jet:	#Base jet class
-	def __init__(self, name, fuel, weight, apt_status, x, y):	
+	def __init__(self, name, fuel, weight, apt_status, path, pathIndex):	
 		self.name	= name		#AA302
 		self.fuel	= fuel		#In gallons?		
 		self.weight	= weight	#In pounds
+		self.path = path		#Index of the path in the PATHS list that the jet is on currently
 		#self.emg_status			#Emergency Status
 		self.apt_status	 = apt_status  #Process Status
 		#self.atc_status			#ATC Status
-		self.location	= (x,y)	#Tuple (x,y)
+		self.location	= pathIndex #Index in the path that the jet is on
 		#self.heading			#In degrees (0 - 360)
 		#self.speed				#Ground speed (MPH) ?
 		#self.altitude			#In Feet
@@ -45,11 +47,34 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 		self.jets_taxi = []		
 		self.jets_term = []
 		self.jets_take = []
-		self.gates = []			#List of all gates at the airport
-		self.paths = [] 
+		self.gates = []			#List of all gates at the airport		
 
-	def update(jet):
-		pass
+	def update_jets():
+		for jet in jets:
+			#if( not emergmency):
+			move(jet)
+
+	def move(jet):
+		jet = Jet("TEST 747", 1000, 398000, 0, 0, 0)
+		#path = PATHS[jet.path]		
+
+		#NOTE: Have to check for end of path
+			  # and handle path switching ? 
+
+		path = Path("T1", "East", [[(0,1), False], [(0,2), False]])
+		if(path.dir == "East" or path.dir == "North"):						
+			path.p[jet.loc][1] = False
+			path.p[jet.loc + 1 ][1] = jet
+			jet.loc += 1
+		if(path.dir == "West" or path.dir == "South"):
+			path.p[jet.loc][1] = False
+			path.p[jet.loc - 1 ][1] = jet		
+			jet.loc -= 1
+
+		#Need 4 more cases for each diagonal direction: MAYBE NOT?
+
+			
+
 
 	def landing(self, runway):
 		#-if runway is locked, the jet can land in a timely fashion. 
@@ -71,6 +96,11 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 			pass
 		#- it will be listed as the first jet on the runway
 
+class Path:
+	def __init__(self, label, dir = "None", list = []):
+		self.label = label
+		self.dir = dir
+		self.p = list
 
 class Gate: #Base Terminal class
 	def __init__(self, x,y):
