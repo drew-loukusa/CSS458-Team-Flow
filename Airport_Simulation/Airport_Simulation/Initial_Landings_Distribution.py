@@ -26,7 +26,7 @@ class Gap: 		#Will be appended to the distribution list
 
 		
 def GeneratePlaneDistribution(hour_start=0, hour_end=24, plane_limit=100000, regular_plane_prob=0.6, high_plane_prob=0.8):
-    """ - The hours parameter has to be given in Military Time:"
+    """ - The hours parameters has to be given in Military Time:"
     		   MIN: 0
 		      MAX: 24
 		
@@ -80,7 +80,16 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, plane_limit=100000, reg
                 else:  
                     tempGap = generateGap
                     distribution.append(tempGap)
-                
+            
+            else:
+                LandingChance = RandP()
+                if(LandingChance > RPP)                         #this is where the change is. RPP instead of HPP                     
+                    tempLanding = generateLanding() 
+                    distribution.append(tempLanding)
+                    
+                else:  
+                    tempGap = generateGap
+                    distribution.append(tempGap)
         else:
             tempRunway = random.randint(1,3)
             tempGapTime = total_minutes - currentMinutes
