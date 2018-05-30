@@ -30,7 +30,7 @@ class Gap: 		#Will be appended to the distribution list
         self.runway = runwayIn			#the runway on which this gap is available
 
 		
-def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.6, high_plane_prob=0.8):
+def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.45, high_plane_prob=0.7):
     """ - The hours parameters has to be given in Military Time:"
     		   MIN: 0
 		      MAX: 24
@@ -138,8 +138,10 @@ def generateLanding():
         tempPlaneType = TYPE_C
                         
     qR = random.randint(1,2)
+    tempTime = TIME_LANDING - TIME_LANDING_DEVIATION 
+    if (qR == 2):    
+        tempTime = TIME_LANDING_DEVIATION + TIME_LANDING   
         
-    tempTime = TIME_LANDING_DEVIATION + TIME_LANDING   
     #print(tempTime)
                         
     retLanding = Landing(tempTime,tempRunway,tempPlaneType)
