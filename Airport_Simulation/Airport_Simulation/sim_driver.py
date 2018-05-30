@@ -14,10 +14,14 @@ TIME_TICKS		= 1440  #In minutes
 NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time X. 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
-							# 100 X by 240 Y ? 
+							# 100 X by 240 Y 
+TAXI_SPEED = 1
 #Step 4: Initilize paths
 init_paths(PATHS)
 PATHS = []				#List of all paths at the airport
+TAXI_Q = []
+LAND_Q = []
+INAIR  = []
 #========================== END GLOBAL CONSTANTS =============================#
 
 
@@ -151,31 +155,21 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 		Most of these paths will have to be hand coded. We can generate some of the stricly vertical and 
 		horizontal ones using numpy maybe? 
 	
-		An adjecency list will also need to be created to maintain what paths connect to what.
-		See Example: 
 
-										Path B
-										  |
-										  |
-										  |
-										  |
-										  |
-		Path A: ------------------------- + -------------------------------- Path C
-										(2, 2)
-		Paths A, B, and C intersect at (2, 2). All paths will have the point (2,2) in their list. 
-		The adjency list will be like this:
-			1. [(A, [B, C]), (B, [A, C]), (C, [B, A])]  
-			2. Select path A, east end
-			3. Path A, east end connects to: Path B South end, Path C west end.				
+		#NOT DOING INTERSECTIONS: INSTEAD WE ARE DOING LABELS TO "LABEL" INTERSECTIONS:
+
+		ASK DREW ABOUT IT IF IT HASN'T BEEN DONE YET
+		
 	"""
 
 	# NOTE:	Diagonal paths need to be handeled slightly differently than horizontal paths or vertical paths 
-	#		Moving 1 left then 1 up is not the same as moving diagonally to the same end loc. The diagonal path is "faster" Dicuss this with group.
+	#		Moving 1 left then 1 up is not the same as moving diagonally to the same end loc. The diagonal path is "faster".
+
+	#		THE SOLUTION: Once a jet reaches the end of a diagonal segment it will wait a calculated amount of time.
+	#					  Because a jet is technically moving faster than it's supposed to, we'll just make it wait a little bit once it stops to balance it out
 
 	#		A possible solution: Don't have diagonal paths, kinda. If you have to curve or do a diagonal path, you just break it up into up down left right movements.
 	#		This way we don't have to deal with this weird case of a diagonal being "faster". We'll talk.
-
-	#TEST PATH: Hardcoded path from Cargo ramp at (33, 113) to top of runaway right. 
 
 	#ALSO NEED TO CREATE A "EDGE LIST" for what paths share which path share which points and what not
 
@@ -214,21 +208,21 @@ def genSeg(st, ed, label, dir = "None"):
 
 	#If generating horizontal segment:
 	if(abs_x > 0 and abs_y == 0):
-		seg.append([st,jet])
+		seg.append([st,jet, label])
 		if(dif_x < 0):
 			dt = - 1
 		for i in range(abs_x):
 			last = seg[i][0]
-			seg.append([(last[0] + dt, last[1]), jet])		
+			seg.append([(last[0] + dt, last[1]), jet, label])		
 
 	#If generating vertical segment:
 	elif(abs_y > 0 and abs_x == 0):
-		seg.append([st,jet, dir])
+		seg.append([st,jet, label])
 		if(dif_y < 0):
 			dt = -1
 		for i in range(abs_y):
 			last = seg[i][0]
-			seg.append([(last[0], last[1] + dt), jet])		
+			seg.append([(last[0], last[1] + dt), jet, label])		
 	
 	#If generating diagonal segment: Currently this creates actual diagonal paths not sudo-diagonal (jagged)
 	elif(abs_x > 0 and abs_y > 0):
@@ -238,14 +232,14 @@ def genSeg(st, ed, label, dir = "None"):
 		if(dif_y < 0):
 			dt_y = -1
 		if(abs_x == abs_y):
-			seg.append([st,jet])
+			seg.append([st,jet, label])
 			for i in range(abs_x):
-				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet])
+				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, label])
 
 	path = Path(label, dir, seg)
 	return path
 
-def updatePathDir(PATHS):
+def updatePathDirection(PATHS):
 	"""Update the direction of directed paths that change when runways switch direction. 
 		ARS: PATHS = Global list of paths
 	"""
@@ -284,5 +278,5 @@ def main():
 	#segment[1][1] = tjet
 
 	#print(segment)
-
+	pass
 #main()

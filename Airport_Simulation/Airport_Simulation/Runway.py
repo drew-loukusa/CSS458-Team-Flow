@@ -1,6 +1,6 @@
 #This is the Runway class
 
-#Take off and landing process takes 5-15min, based on the real-time ground traffice
+#Take off and landing process takes 5-15min, based on the real-time ground traffic
 from classes import *
 import threading
 import time
@@ -35,4 +35,3 @@ class Runway(threading.Thread):
 		print(datetime.datetime.fromtimestamp(time.time()).strftime(''))
 
 
-   
