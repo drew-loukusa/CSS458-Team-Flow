@@ -36,7 +36,7 @@ class C_Jet(Jet): #Cargo jet
 		self.cargo			#In pounds
 
 
-class ATC:					#Air Traffic Control: Serves as main logic controller of simulation
+class GTC:					#Airport Ground Traffic Control: Serves as main logic controller of simulation
 	def __init__(self):		
 		#We don't NEED a seperate list for each Airport process status but I'm leaving them here for now:
 		#It might make it easier later to do it this way.
