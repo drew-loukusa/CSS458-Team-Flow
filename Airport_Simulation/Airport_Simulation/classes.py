@@ -121,6 +121,10 @@ class GTC:					#Airport Ground Traffic Control: Serves as main logic controller 
 			pass
 		#- it will be listed as the first jet on the runway
 
+#####################################################################
+#-Path Class
+#-Contains information about gate at terminal
+#####################################################################
 class Path:
 	def __init__(self, dir = "None", list = []):		
 		self.dir = dir
@@ -139,9 +143,11 @@ class Path:
 		#
 		#		Path A is intersected at (1, 1) by path B. So Path A = [[ (1, 0), jet, empty label] 
 		#															    [ (1, 1), jet, (index of intersecting path, index of point in intersecting path)
-
-
-class Gate: #Base Terminal class
+#####################################################################
+#-Base Gate class
+#-Contains information about gate at terminal
+#####################################################################
+class Gate: 
 	def __init__(self, x,y):
 		self.loc = (x,y)	#Location of terminal
 		self.jet;			#Each terminal can hold a single jet		
@@ -150,10 +156,13 @@ class Gate: #Base Terminal class
 	def refuel(jet):
 		pass
 
-
+#####################################################################
+#-Base passenger gate class
+#-Contains information about passenger gate at terminal
+#####################################################################
 class P_Gate(Gate): #Passenger Terminal
 	def __init__(self):
-		pass
+		self.loc(x,y)
 
 	def deboard_passengers(self, jet): 
 		pass
