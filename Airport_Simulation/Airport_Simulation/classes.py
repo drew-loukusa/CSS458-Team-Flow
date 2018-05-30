@@ -184,12 +184,13 @@ class ap_stat(Enum):	#Airport Process Status
 	A = 0		#In the air
 	H = 1		#In holding pattern
 	L = 2		#Landing
-	TX = 3		#Taxiing			
-	TE = 4		#At a terminal
-	TA = 5		#Taking off
+	TX_R = 3	#Taxiing to runway
+	TX_G = 4        #Taxiing to gate
+	TE = 5		#At a terminal
+	TA = 6		#Taking off
 	
 
-class atc_stat(Enum):	#Jet ATC Status
+class gtc_stat(Enum):	#Jet GTC Status
 	AW = 0		#Awaiting instructions from ATC
 	EX = 1		#Executing instructions from ATC
 	IN = 2		#Inactive - not requesting clearance, not executing anything
