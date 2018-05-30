@@ -18,7 +18,7 @@ NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time 
 TAXI_SPEED = 1
 #Step 4: Initilize paths
 init_paths(PATHS)
-PATHS = []				#List of all paths at the airport
+PATHS  = []				#List of all paths at the airport
 TAXI_Q = []
 LAND_Q = []
 INAIR  = []
@@ -27,7 +27,6 @@ INAIR  = []
 
 #================================ IMPORTS ====================================#
 from classes import *
-#============================== END IMPORTS ==================================#
 
 
 #============================== SIMULATION ===================================#
