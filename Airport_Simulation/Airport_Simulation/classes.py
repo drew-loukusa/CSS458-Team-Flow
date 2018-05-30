@@ -17,7 +17,7 @@ class Jet:	#Base jet class
 		#self.emg_status			#Emergency Status
 		self.apt_status	 = apt_status  #Process Status
 		#self.atc_status			#ATC Status
-		self.location	= pathIndex #Index in the path that the jet is on
+		self.loc	= pathIndex #Index in the path that the jet is on
 		#self.heading			#In degrees (0 - 360)
 		#self.speed				#Ground speed (MPH) ?
 		#self.altitude			#In Feet
@@ -50,35 +50,58 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 		self.gates = []			#List of all gates at the airport		
 
 	def update_jets():
+		""" Updates the state of all jets in the simulation. 
+			Path switching when necessary is done in this method."""
 		for jet in jets:
-			#if( not emergmency):
-			move(jet)
+			move_jet(jet)
+		
 
-	def move(jet):
+	def move_jet(jet):
+		""" Method for moving a jet. This is done by changing which slot in a path list the jet occupies.
+			This method does not switch paths, it only checks for jet collision and path ending
+		"""
 		jet = Jet("TEST 747", 1000, 398000, 0, 0, 0)
-		#path = PATHS[jet.path]		
+		dD = 1	#Change in distance of the jet calculated by it's speed. Most jets will have the same speed: TAXI_SPEED
+		path = PATHS[jet.path]
+		
+		def changeListPosition(positive): 
+			"""Nested function for changing the position of a jet in a list """
+			if(positive == False):
+				dD = dD - 2*dD
+
+			#Check the slot imediately ahead of this jet. 
+			clear_ahead = False
+			if(path.p[jet.loc + dD ][1] != False):
+				clear_ahead = True
+			
+			#Check if the path ends
+			end_path = False
+			if(jet.loc + dD >= path.size() or jet.loc + dD < 0):
+				end_path = True
+
+			if(clear_ahead and not end_path):
+				path.p[jet.loc + dD ][1] = jet
+				path.p[jet.loc][1] = False
+				jet.loc += dD 
 
 		#NOTE: Have to check for end of path
-			  # and handle path switching ? 
+		# and handle path switching ? 
+	
+		if(path.dir == "East" or path.dir == "North"):
+			changeListPosition(True)
 
-		path = Path("T1", "East", [[(0,1), False], [(0,2), False]])
-		if(path.dir == "East" or path.dir == "North"):						
-			path.p[jet.loc][1] = False
-			path.p[jet.loc + 1 ][1] = jet
-			jet.loc += 1
 		if(path.dir == "West" or path.dir == "South"):
-			path.p[jet.loc][1] = False
-			path.p[jet.loc - 1 ][1] = jet		
-			jet.loc -= 1
+			changeListPosition(False)
 
-		#Need 4 more cases for each diagonal direction: MAYBE NOT?
+		if(path.dir == "South-East" or path.dir == "North-East"):						
+			changeListPosition(True)
 
-			
-
+		if(path.dir == "North-West" or path.dir == "South-West"):
+			changeListPosition(False)
 
 	def landing(self, runway):
-		#-if runway is locked, the jet can land in a timely fashion. 
-		if runway.lock.loced():
+		#-if runway is locked, the jet can land in a timely fashion
+		if(runway.lock.locked()):
 			hold = Time(10, land, runway)
 			hold.start()
 			print("Jet in hold")
@@ -90,17 +113,31 @@ class ATC:					#Air Traffic Control: Serves as main logic controller of simulati
 			runway.landingComplete(cur)
 
 	def taking_off(self, runway):
-		if runway.lock.locked():
+		if(runway.lock.locked()):
 			pass
 		else:
 			pass
 		#- it will be listed as the first jet on the runway
 
 class Path:
-	def __init__(self, label, dir = "None", list = []):
-		self.label = label
+	def __init__(self, dir = "None", list = []):		
 		self.dir = dir
 		self.p = list
+
+		#Note:	Tuple: (Index of path in PATHS which intersects THIS path, index of point in path which intersects this path)						
+		#
+		#		After you've created this path, you may create other paths which intersect this path. 
+		#		If you do this, you must access THIS list and label the spots which got intersected.	
+		#									Path B
+		#									 |
+		#		Path A ----------------------|--------------------------- Path A End
+		#									 |
+		#									 |
+		#									Path B
+		#
+		#		Path A is intersected at (1, 1) by path B. So Path A = [[ (1, 0), jet, empty label] 
+		#															    [ (1, 1), jet, (index of intersecting path, index of point in intersecting path)
+
 
 class Gate: #Base Terminal class
 	def __init__(self, x,y):
@@ -120,10 +157,10 @@ class P_Gate(Gate): #Passenger Terminal
 		pass
 
 	def service(self, jet):		#After deboarding, the jet must be made ready for the next trip
-		pass				#This process takes TIME_TO_SERVICE amount of time
+		pass					#This process takes TIME_TO_SERVICE amount of time
 
 	def board_passengers(self, jet):	#After being serviced, board passengers
-		pass					#This takes TIME_TO_BOARD amount of time
+		pass							#This takes TIME_TO_BOARD amount of time
 	
 	
 class C_Gate(Gate): #Cargo Terminal
