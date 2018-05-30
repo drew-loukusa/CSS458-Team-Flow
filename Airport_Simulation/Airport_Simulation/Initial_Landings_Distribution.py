@@ -12,7 +12,7 @@ import random
 
 TYPE_P = "PASSANGER"
 TYPE_C = "CARGO"
-TIME_LANDING = 1.3              #hardcoded because is used at SEA-TAC
+TIME_LANDING = 1.4              #hardcoded because is used at SEA-TAC
 TIME_LANDING_DEVIATION = 0.1    #by default, could be changed	       
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
@@ -54,6 +54,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
 	
     landingCount = 0
     gapCount = 0
+    totalOperations = landingCount + gapCount
     
     runwayLandings = [0,0,0]
 	
@@ -150,7 +151,7 @@ def generateLanding():
 
 def generateGap():
     tempRunway = random.randint(1,3)
-    tempGapTime = 1
+    tempGapTime = 1.112
           
     retGap = Gap(tempGapTime, tempRunway)
     return (tempGapTime, retGap)
