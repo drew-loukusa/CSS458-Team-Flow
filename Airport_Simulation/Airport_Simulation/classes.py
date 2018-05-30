@@ -8,7 +8,8 @@ from sim_driver import *
 # NOTE: I have commented out some Jet class variables so I can get some basic implemenation done. 
 #		Will be added back in later as needed? 
 
-class Jet:	#Base jet class
+#-Base jet class: this class contains the basic information about a jet
+class Jet:	
 	def __init__(self, name, fuel, weight, apt_status, path, pathIndex):	
 		self.name	= name		#AA302
 		self.fuel	= fuel		#In gallons?		
@@ -23,13 +24,14 @@ class Jet:	#Base jet class
 		#self.altitude			#In Feet
 		#self.burn_rate			#Gallons per hour? 
 		#self.history = []		#Stores each of the preceding variables for each time step of simulation
-		
-class P_Jet(Jet): #Passenger jet
+
+#-Passenger jet: this class contains information about passenger jets
+class P_Jet(Jet):
 	def __init__(self, name, fuel, weight, x, y):
 		self.passengers		#Number of passengers. Avg weight will be 150 Lb per passenger
 		self.ploy = TIME_TO_BOARD
 
-
+#-Cargo jet: this class contains information about cargo jets
 class C_Jet(Jet): #Cargo jet 
 	def __init__(self, name, fuel, weight, x, y):
 		super(C_Jet, self).__init__(name, fuel, weight, x,y)		
