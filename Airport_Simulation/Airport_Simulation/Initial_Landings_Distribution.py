@@ -12,8 +12,8 @@ import random
 
 TYPE_P = "PASSANGER"
 TYPE_C = "CARGO"
-TIME_LANDING = 1				#in minutes
-TIME_LANDING_DEVIATION = 1	
+TIME_LANDING = 1.3              #hardcoded because is used at SEA-TAC
+TIME_LANDING_DEVIATION = 0.1    #by default, could be changed	       
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
 RUNWAYS = (1,2,3)
@@ -54,8 +54,10 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
 	
     landingCount = 0
     gapCount = 0
+    
+    runwayLandings = [0,0,0]
 	
-    currentMinutes = 0
+    currentMinutes = 0.0
     distribution = []		#will keep track of Landings and Gaps
 	
     while (currentMinutes < total_minutes):
@@ -66,7 +68,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                 
                 LandingChance = RandP()
                 if(LandingChance > HPP):                                       
-                    dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding() 
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
@@ -81,7 +83,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                 
                 LandingChance = RandP()
                 if(LandingChance > HPP):                                       
-                    dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding() 
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
@@ -95,8 +97,9 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
             else:
                 LandingChance = RandP()
                 if(LandingChance > RPP):                         #this is where the change is. RPP instead of HPP                     
-                    dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding() 
                     distribution.append(tempLanding)
+                    
                     landingCount += 1
                     currentMinutes += dT
                     
@@ -134,11 +137,13 @@ def generateLanding():
     else:
         tempPlaneType = TYPE_C
                         
-    tempTime = round(RandP()) + TIME_LANDING   
+    qR = random.randint(1,2)
+        
+    tempTime = TIME_LANDING_DEVIATION + TIME_LANDING   
     #print(tempTime)
                         
     retLanding = Landing(tempTime,tempRunway,tempPlaneType)
-    return (tempTime, retLanding)
+    return (tempRunway, tempTime, retLanding)
 
 
 def generateGap():
