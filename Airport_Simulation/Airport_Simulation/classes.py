@@ -43,7 +43,7 @@ class C_Jet(Jet): #Cargo jet
 		super(C_Jet, self).__init__(name, fuel, weight, x,y)		
 		self.cargo			#In pounds
 
-class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
+class GTC:	#Ground Traffic Control: Serves as main logic controller of simulation
 	def __init__(self):				
 		self.jets = []				#List of all jets in simulation
 		self.jets_in_air = []
@@ -70,9 +70,11 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 
 			
 
-			#If jet is landing
+			#-------------------------- If jet is landing --------------------------#
 			if(jet.apt == 2):
-				
+				#Change status of ruway to closed if not already changed:				
+				if(RWL_OPEN and RWM_OPEN and RWR_OPEN):
+					change_runway_status(jet, False)
 				#1. Move it down the runway to a spot where it stops and takes an open taxiway
 				#	or a taxiway with room. 
 				#2. Change status to TXG - 4 - Taxiing to gate
@@ -84,16 +86,19 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 
 				# If jet has reached taxiing speed after most recent 
 				# reduceSpeed() call, look for taxiways
-				if(jet.speed == TAXI_SPEED):				
+				if(jet.speed == TAXI_SPEED):	
+					change_runway_status(jet, True)
 					jet.apt = 4				  # Change Status to TXG - Taxiing to gate
 					switch_paths(jet)		  # Switch paths e.g. move onto taxiway if any available
 					move(jet)			  # Move it either way: If it didn't move onto a path, keep moving
 											  #		If it found a path it it wasn't valid, keep moving
 											  #		If it it found a path and switched to it, still move it.
-			#If jet is going to a runway:
+
+			#-------------------------- If jet is going to a runway: ---------------#
 			elif(jet.apt == 3):
 				#1. Move it from the terminal to the MAIN taxiway
-				switch_paths(jet) #If available, switch to the path
+				if(check_for_intersection(jet)):
+					switch_paths(jet, ["North", "South"]) #If available, switch to the main taxiway
 				
 				#2. Move it UP or DOWN the main taxiway untill it reaches the top or bottom of the airport
 				move(jet)		
@@ -103,7 +108,7 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 				#5. IF IN TAKEOFF QUEUE: No change to status
 				pass
 
-			#If jet is going to gate:
+			#-------------------------- If jet is going to gate: -------------------#
 			elif(jet.apt == 4):
 				#1a. Pick a random gate for the jet to go to if it hasn't been given one:
 				if(jet.target_gate == None):
@@ -130,7 +135,7 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 		
 				pass
 			
-			#If jet is at a gate:
+			#-------------------------- If jet is at a gate: ------------------#
 			elif(jet.apt == 5):
 				# If the jet hasn't started the gate process, do so:
 				if(jet.time_at_gate > 0):					
@@ -151,7 +156,7 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 					jet.apt = 3
 					gates[jet.target_gate].jet = False
 			
-			#If jet is taking off:
+			#-------------------------- If jet is taking off: -----------------#
 			elif(jet.apt == 6):				
 				#Move the jet down the runway:
 				not_at_end = move(jet)
@@ -161,6 +166,21 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 				if(not not_at_end):
 					NUM_JETS_TOOK_OFF += 1
 					jets.remove(jet)
+
+	def change_runway_status(jet, open_or_closed):
+		"""	Method for changing the status of a runway
+			Args: - open_or_closed : True or False
+				    Used to open or close the runway
+
+			! NOTE ! :	If opening a runway this must be called before jet is moved off the runway.
+						This method uses the jets current location to open the correct runway
+		"""
+		if(jet.path == 0):
+			RWL_OPEN = open_or_closed
+		if(jet.path == 1):
+			RWM_OPEN = open_or_closed
+		if(jet.path == 2):
+			RWR_OPEN = open_or_closed
 
 	def check_for_intersection(self, jet, target_path = None):
 		"""	Checks the current location of the jet to see if the jet is on an intersection.
@@ -253,15 +273,32 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 		
 		def changeListPosition(positive): 
 			"""Nested function for changing the position of a jet in a list """
-			if(positive == False):
+			if(not positive):
 				dD = dD - 2*dD
 
-			#Check the slot imediately ahead of this jet. 
+			#Check the slot imediately ahead of this jet for other jets: 
 			clear_ahead = False
 			if(path.p[jet.loc + dD ][1] != False):
 				clear_ahead = True
+
+			#Check that we arn't crossing an active runway:
+			for i in range(1, dD + 1):
+				j = i
+				if(not positive):
+					j = -i 
+				index = PATHS[jet.path][jet.loc + j][2][0] 
+				if(index == 0 or 1 or 2):
+					if(index == 0):
+						if(not RWL_OPEN):
+							return False
+					if(index == 1):
+						if(not RWM_OPEN):
+							return False
+					if(index == 2):
+						if(not RWR_OPEN):
+							return False		
 			
-			#Check if the path ends
+			#Check if the path ends:
 			end_path = False
 			if(jet.loc + dD >= path.size() or jet.loc + dD < 0):
 				end_path = True
@@ -285,6 +322,8 @@ class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
 		if(path.dir == "North-West" or path.dir == "South-West"):
 			return changeListPosition(False)
 
+
+	#May not need these? vvvvvvvv 
 	def landing(self, runway):
 		#-if runway is locked, the jet can land in a timely fashion
 		if(runway.lock.locked()):
@@ -344,31 +383,31 @@ class Gate: #Base Terminal class
 	def board(self, jet):					#After being serviced, board passengers
 		jet.time_at_gate += TIME_TO_BOARD   #This takes TIME_TO_BOARD amount of time	
 
-class P_Gate(Gate): #Passenger Terminal
-	def __init__(self):
-		pass
+#class P_Gate(Gate): #Passenger Terminal
+#	def __init__(self):
+#		pass
 
-	def deboard_passengers(self, jet): 
-		pass
+#	def deboard_passengers(self, jet): 
+#		pass
 
-	def service(self, jet):		#After deboarding, the jet must be made ready for the next trip
-		pass					#This process takes TIME_TO_SERVICE amount of time
+#	def service(self, jet):		#After deboarding, the jet must be made ready for the next trip
+#		pass					#This process takes TIME_TO_SERVICE amount of time
 
-	def board_passengers(self, jet):	#After being serviced, board passengers
-		pass							#This takes TIME_TO_BOARD amount of time	
+#	def board_passengers(self, jet):	#After being serviced, board passengers
+#		pass							#This takes TIME_TO_BOARD amount of time	
 	
-class C_Gate(Gate): #Cargo Terminal
-	def __init__(self, x, y):
-		self.loc = (x,y)
+#class C_Gate(Gate): #Cargo Terminal
+#	def __init__(self, x, y):
+#		self.loc = (x,y)
 
-	def unload_cargo(self, jet):
-		pass
+#	def unload_cargo(self, jet):
+#		pass
 
-	def service(self, jet):
-		pass
+#	def service(self, jet):
+#		pass
 
-	def load_cargo(self, jet):
-		pass
+#	def load_cargo(self, jet):
+#		pass
 
 #=========================== SIMULATION OBJECTS ==============================#
 
