@@ -140,6 +140,7 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	PATHS.append = genSeg((36, 55), (36, 230), dir="North")
 	RUNWAY_M = PATHS[2]
 
+	#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y12)
 	PATHS.append = genSeg((5, 90), (10, 90), dir = "East")
 	PATHS.append = genSeg((5, 110,), (10, 90), dir = "SouthEast")
 	PATHS.append = genSeg((5, 132), (24, 108), dir = "SouthEast")
@@ -157,6 +158,19 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	PATHS.append = genSeg((23, 210), (36, 210), dir = "East")
 	PATHS.append = genSeg((16, 230), (22, 230), dir = "East")
 	PATHS.append = genSeg((22, 230),(36, 230), dir = "East")
+	PATHS.append = genSeg((36, 55) (45, 55), dir = "East")
+	PATHS.append = genSeg((36, 60), (45, 60), dir = "East")
+	PATHS.append = genSeg((36, 76), (45, 60), dir = "SouthEast")
+	PATHS.append = genSeg((36, 110), (45, 95), dir = "SouthEast")
+	PATHS.append = genSeg((36,130),(45,110), dir = "SouthEast")
+	PATHS.append = genSeg((36, 130), (45, 155), dir = "NorthEast")
+	PATHS.append = genSeg((36, 160), (45,185), dir = "NorthEast")
+	PATHS.append = genSeg((36, 175), (45, 160), dir = "SoutheEast")
+	PATHS.append = genSeg((36, 195), (45, 210), dir = "NorthEast")
+	PATHS.append = genSeg((36, 210), (45, 210), dir = "East")
+	PATHS.append = genSeg((36, 220), (45, 220), dir = "East")
+	PATHS.append = genSeg((36, 230), (45, 230), dir = "East")
+
 
 
 
