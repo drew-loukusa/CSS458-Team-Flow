@@ -16,7 +16,7 @@ TIME_LANDING = 1.4              #hardcoded because is used at SEA-TAC
 TIME_LANDING_DEVIATION = 0.1    #by default, could be changed	       
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
-RUNWAYS = (1,2,3)
+RUNWAYS = (1,2,3)   #Runway 2 is not in use
 
 class Landing:	#Will be appended to the distribution list
     def __init__(self, timeIn, runwayIn, planeTypeIn):	
@@ -73,6 +73,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
+                    runwayLandings[rIndex-1] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -88,6 +89,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
+                    runwayLandings[rIndex-1] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -102,7 +104,8 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                     distribution.append(tempLanding)
                     
                     landingCount += 1
-                    currentMinutes += dT
+                    currentMinutes += dT                   
+                    runwayLandings[rIndex-1] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -119,7 +122,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
             tempGap = Gap(tempGapTime, tempRunway)
             distribution.append(tempGap)
     
-    return (landingCount, gapCount, currentMinutes, distribution)
+    return (runwayLandings, landingCount, gapCount, currentMinutes, distribution)
 		
 		
 	
@@ -128,7 +131,9 @@ def RandP():
 	return random.random()
 
 def generateLanding():
-    tempRunway = random.randint(1,3)
+    tempRunway = random.randint(1,2)
+    if (tempRunway == 2):
+        tempRunway = 3
                     
     tempTypeProb = RandP()
     #print(tempTypeProb)
@@ -157,8 +162,11 @@ def generateGap():
     return (tempGapTime, retGap)
     
 #Test
-lCount, gCount, CM, landings = GeneratePlaneDistribution()
+runwayDist, lCount, gCount, CM, landings = GeneratePlaneDistribution()
 possibleAircraftOperations = gCount + lCount
+print("Runway 1 landings: " + str(runwayDist[0]))
+print("Runway 2 landings: " + str(runwayDist[1]))
+print("Runway 3 landings: " + str(runwayDist[2]))
 print("Landings: " + str(lCount))
 print("Gaps: " + str(gCount))
 print("Total (Landings + Potential Takeoffs): " + str(possibleAircraftOperations))
