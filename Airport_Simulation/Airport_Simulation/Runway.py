@@ -35,3 +35,10 @@ class Runway(threading.Thread):
 		print(datetime.datetime.fromtimestamp(time.time()).strftime(''))
 
 
+#A = 0		#In the air
+#H = 1		#In holding pattern
+#L = 2		#Landing
+#TXR = 3	#Taxiing to runway
+#TXG = 4	#Taxiing to gate
+#TE = 5		#At a terminal
+#TA = 6		#Taking off

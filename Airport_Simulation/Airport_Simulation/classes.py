@@ -1,6 +1,7 @@
 
 import time
 import Runway as runway
+import random as R
 from threading import *
 from sim_driver import *
 #=========================== SIMULATION OBJECTS ==============================# 
@@ -9,20 +10,26 @@ from sim_driver import *
 #		Will be added back in later as needed? 
 
 class Jet:	#Base jet class
-	def __init__(self, name, fuel, weight, apt_status, path, pathIndex):	
+	def __init__(self, name, fuel, weight, apt, path, pathIndex):	
 		self.name	= name		#AA302
 		self.fuel	= fuel		#In gallons?		
 		self.weight	= weight	#In pounds
-		self.path = path		#Index of the path in the PATHS list that the jet is on currently
-		#self.emg_status			#Emergency Status
-		self.apt_status	 = apt_status  #Process Status
-		#self.atc_status			#ATC Status
+		self.path	= path		#Index of the path in the PATHS list that the jet is on currently
+		self.apt	= apt		#Process Status
 		self.loc	= pathIndex #Index in the path that the jet is on
+		self.history = []		#Stores each of the preceding variables for each time step of simulation
+		#self.atc_status		#ATC Status
+		#self.emg_status		#Emergency Status
 		#self.heading			#In degrees (0 - 360)
 		#self.speed				#Ground speed (MPH) ?
 		#self.altitude			#In Feet
 		#self.burn_rate			#Gallons per hour? 
-		#self.history = []		#Stores each of the preceding variables for each time step of simulation
+
+	def logData(self):
+		"""	Store all class variables' state in the current time step in the jets' history.
+			History is a list of lists. Each list in the list represents one time step of the simulation
+		"""
+		history.apppend([fuel, weight, path, apt_status, loc])
 		
 class P_Jet(Jet): #Passenger jet
 	def __init__(self, name, fuel, weight, x, y):
@@ -36,25 +43,69 @@ class C_Jet(Jet): #Cargo jet
 		self.cargo			#In pounds
 
 
-class ATC:					#Air Traffic Control: Serves as main logic controller of simulation
-	def __init__(self):		
-		#We don't NEED a seperate list for each Airport process status but I'm leaving them here for now:
-		#It might make it easier later to do it this way.
-		self.jets = []			#List of all jets in simulation
-		self.jets_air  = []
-		self.jets_hold = []		#This should be treated as a queue: FIFO
-		self.jets_land = []		
-		self.jets_taxi = []		
-		self.jets_term = []
-		self.jets_take = []
-		self.gates = []			#List of all gates at the airport		
+class ATC:	#Air Traffic Control: Serves as main logic controller of simulation
+	def __init__(self):				
+		self.jets = []				#List of all jets in simulation
+		self.jets_in_air = []
+		self.holding_q	= []		#This should be treated as a queue: FIFO		
+		self.takeoff_q	= []			
+		self.GATES		= []		#List of all gates at the airport		
 
 	def update_jets():
 		""" Updates the state of all jets in the simulation. 
 			Path switching when necessary is done in this method."""
 		for jet in jets:
-			move_jet(jet)
-		
+			
+			# NOT CURRENTLY USING FIRST TWO STATUSES: Spawning jets directly 
+			# onto runway using mostly uniform distribution. With the exception
+			# of rushours which have a higher probability of a jet landing.
+			
+			#If jet is landing
+			if(jet.apt == 2):
+				#1. Move it down the runway to a spot where it stops and takes an open taxiway
+				#	or a taxiway with room. 
+				#2. Change status to TXG - 4 - Taxiing to gate
+				pass
+
+			#If jet is going to a runway:
+			if(jet.apt == 3):
+				#1. Move it from the terminal to the MAIN taxiway
+				#2. Move it UP or DOWN the main taxiway untill it reaches the top or bottom of the airport
+				#3. Move it LEFT untill it reaches the takeoff queue OR it reaches the runway				
+				#4. IF TAKING OFF: Change status to TA - 6 - Taking off 
+				#5. IF IN TAKEOFF QUEUE: No change to status
+				pass
+
+			#If jet is going to gate:
+			if(jet.apt == 4):
+				#1. Move jet RIGHT untill it reaches taxi-to-gate queue or reaches MAIN taxiway
+				#2. Move jet UP or DOWN MAIN taxiway until it reaches the path for it's random assigned gate
+				#3. Move jet onto gate path
+				#4. Dock jet with the gate and change it's status to TG: 5 - At a gate
+				pass
+			
+			#If jet is at a gate:
+			if(jet.apt == 5):
+				pass
+			
+			#If jet is taking off:
+			if(jet.apt == 6):
+				pass
+
+			#If jet needs to be moved get moved
+			#If jet needs to be path switched path switch
+			#If jet needes to be gated, gate it
+			#If jet needs to be 
+			pass
+			
+	def pickGate(self):
+		"""Picks an open gate at random for the jet to go to."""
+		gate = GATES[R.randint(0, len(GATES))]
+		while(gate.jet != False):
+			index = R.randint(0, len(GATES))
+			gate = GATES[index]
+			
+		pass
 
 	def move_jet(jet):
 		""" Method for moving a jet. This is done by changing which slot in a path list the jet occupies.
@@ -142,9 +193,8 @@ class Path:
 class Gate: #Base Terminal class
 	def __init__(self, x,y):
 		self.loc = (x,y)	#Location of terminal
-		self.jet;			#Each terminal can hold a single jet		
-		self.has_jet;		#Bool for if terminal is occupied or not
-
+		self.jet;			#Each terminal can hold a single jet
+		
 	def refuel(jet):
 		pass
 
@@ -184,10 +234,12 @@ class ap_stat(Enum):	#Airport Process Status
 	A = 0		#In the air
 	H = 1		#In holding pattern
 	L = 2		#Landing
-	TX = 3		#Taxiing			
-	TE = 4		#At a terminal
-	TA = 5		#Taking off
-	
+	TXR = 3		#Taxiing to runway
+	TXG = 4		#Taxiing to gate
+	TG = 5		#At a gate
+	TA = 6		#Taking off
+
+#
 
 class atc_stat(Enum):	#Jet ATC Status
 	AW = 0		#Awaiting instructions from ATC
