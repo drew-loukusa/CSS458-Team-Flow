@@ -130,6 +130,38 @@ def init_jets(atc_object):
 
 def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section instead of in the simulaiton method. This to ensure they are global and copies don't get 
 							#Passed around
+	#120x50
+	#x2 240x100
+
+	PATHS.append = genSeg((5,90), (5,230), dir = "North")
+	RUNWAY_R = PATHS[0]
+	PATHS.append = genSeg((45, 4), (45, 230), dir = "North")
+	RUNWAY_L = PATHS[1]
+	PATHS.append = genSeg((36, 55), (36, 230), dir="North")
+	RUNWAY_M = PATHS[2]
+
+	PATHS.append = genSeg((5, 90), (10, 90), dir = "East")
+	PATHS.append = genSeg((5, 110,), (10, 90), dir = "SouthEast")
+	PATHS.append = genSeg((5, 132), (24, 108), dir = "SouthEast")
+	PATHS.append = genSeg((5, 152), (24, 134), dir = "SouthEast")
+	PATHS.append = genSeg((5, 160), (24, 174), dir = "NorthEast")
+	PATHS.append = genSeg((5, 200), (24, 210), dir = "NorthEast")
+	PATHS.append = genSeg((5, 220), (16, 230), dir = "NorthEast")
+	PATHS.append = genSeg((10, 90), (24, 55), dir = "SouthEast")
+	PATHS.append = genSeg((22 ,68), (22, 230), dir = "North")
+	PATHS.append = genSeg((24, 55), (36, 55), dir = "East")
+	PATHS.append = genSeg((24,55), (36, 55), dir = "East")
+	PATHS.append = genSeg((24, 84), (36, 80), dir = "SouthEast")
+	PATHS.append = genSeg((24,134), (36, 131), dir = "SouthEast")
+	PATHS.append = genSeg((24, 174) (36, 174), dir = "East")
+	PATHS.append = genSeg((23, 210), (36, 210), dir = "East")
+	PATHS.append = genSeg((16, 230), (22, 230), dir = "East")
+	PATHS.append = genSeg((22, 230),(36, 230), dir = "East")
+
+
+
+
+
 	""" ARGS: PATHS, the global list that holds paths
 	
 	TODO: Gridsize is 50 x 120
@@ -141,7 +173,9 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 
 		PATHS ARE NOW OBJECTS AGAIN
 		
-		Format: [[(x,y), jet],[(x,y), jet],[(x,y), jet]] 
+		Format: [[(x,y), jet],[(x,y), jet],[(x,y), jet]]
+		[[ (1, 0), jet, empty label] 
+        #[ (1, 1), jet, (index of intersecting path, index of point in intersecting path) 
 				
 		FORMAT OF ENTRY FOR EACH POINT:	[(x,y), jet] 
 		
