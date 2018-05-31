@@ -312,36 +312,3 @@ def updatePathDirection(PATHS):
 	
 #======================== END SIMULATION METHODS =============================#
 
-#-jet variable with the name, coordinates, and the status(False-in air, true-on ground)
-#j1 = jet("CA111", 25, 50, False)
-#j = jet("AA302", 40, 10, True)
-
-#A = ATC()
-
-#A.land.append(j1)
-#A.take_off.append(j2)
-#r1 = runway()
-#r1.timestamp()
-#A.takeOff(r1)
-#r1.timestamp()
-#A.land(j1)
-
-def main():
-	##airport_sim()	
-	#start = (10, 0)
-	#end = (0,0)
-	#segment = genSeg(start, end)
-	#tjet = Jet("TestJet", 5000, 300000, "No stat lol", 0, 0)
-	#print(tjet.name)
-	#segment[0][1] = tjet;
-	#print(segment)
-	#print("\n")
-	#print(segment[0][1].name)
-	#print("\n")
-
-	#segment[0][1] = False
-	#segment[1][1] = tjet
-
-	#print(segment)
-	pass
-#main()
