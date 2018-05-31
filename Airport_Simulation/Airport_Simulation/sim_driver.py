@@ -3,7 +3,6 @@
 #We could also play with them to see how they affect throughput of the airport
 
 #Feel free to add constants, just don't remove any without consulting the team.
-#Basically, don't break it.
 #============================ GLOBAL CONSTANTS ===============================#
 TIME_TO_BOARD	= 60	#In minutes
 TIME_TO_DEBOARD = 60	#In minutes
@@ -11,10 +10,14 @@ TIME_TO_REFUEL	= 60	#In minutes
 TIME_TO_SERVICE = 60	#In minutes
 MAX_PASSENGERS  = 150	
 TIME_TICKS		= 1440  #In minutes 
+TICK = 1				#One minute 
 NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time X. 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
 							# 100 X by 240 Y 
+
+FUEL_MAX = 6000 #In pounds NEED TO FIND HOW MUCH FUEL JETS CARRY but this is close
+DELTA_SPEED = 2
 TAXI_SPEED = 1
 #Step 4: Initilize paths
 init_paths(PATHS)
@@ -22,6 +25,10 @@ PATHS  = []				#List of all paths at the airport
 TAXI_Q = []
 LAND_Q = []
 INAIR  = []
+
+NUM_JETS_TOOK_OFF = 0
+NUM_JETS_LANDED   = 0
+
 #========================== END GLOBAL CONSTANTS =============================#
 
 
@@ -235,17 +242,11 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	#		A possible solution: Don't have diagonal paths, kinda. If you have to curve or do a diagonal path, you just break it up into up down left right movements.
 	#		This way we don't have to deal with this weird case of a diagonal being "faster". We'll talk.
 
-	#ALSO NEED TO CREATE A "EDGE LIST" for what paths share which path share which points and what not
+	
 
-	direction = "None"
-	a = genSeg((0,0), (5,0), dir = "East")
-	b = genSeg((5,0), (5,5), dir = "North")
-	PATHS.append(a)
-	PATHS.append(b)
-	jet = False		
-	pass
+	
 
-def genSeg(st, ed, label, dir = "None"):
+def genSeg(st, ed, label = False, dir = "None"):
 	"""	Method for generateing individual sections of a path.		
 		Args: 
 		* st	: A tuple (x,y), the start location of the segment
@@ -300,7 +301,7 @@ def genSeg(st, ed, label, dir = "None"):
 			for i in range(abs_x):
 				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, label])
 
-	path = Path(label, dir, seg)
+	path = Path(dir, seg)
 	return path
 
 def updatePathDirection(PATHS):
