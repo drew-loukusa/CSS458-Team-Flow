@@ -29,7 +29,7 @@ class Gap: 		#Will be appended to the distribution list
         self.time = timeIn				#minutes the gap will take
         self.runway = runwayIn			#the runway on which this gap is available
 
-		
+
 def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.45, high_plane_prob=0.9):
     """ - The hours parameters has to be given in Military Time:"
     		   MIN: 0
