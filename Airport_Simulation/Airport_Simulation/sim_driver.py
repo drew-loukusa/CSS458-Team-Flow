@@ -150,27 +150,28 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	#x2 240x100
 
 	#Create the Three Main Runways:
-	PATHS.append = genSeg((5,90), (5,235), dir = "North")
+	PATHS.append = genSeg((1,90), (1,235), dir = "North")
 	RUNWAY_L = 0	
 	PATHS.append = genSeg((36, 55), (36, 235), dir="North")
 	RUNWAY_M = 1
 	PATHS.append = genSeg((45, 4), (45, 235), dir = "North")
 	RUNWAY_R = 2
+	PATHS.append = genSeg((60, 1), (60, 235), dir="North-East")
+	Terminal_path = 3
 
-#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y12)
+	#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y2)
 
 	#Paths Connected to Runway Left <-> Center Taxiway
-	PATHS.append = genSeg((5, 90), (10, 90), dir = "East")
-	PATHS.append = genSeg((5, 110,), (10, 90), dir = "South-East")
-	PATHS.append = genSeg((5, 132), (24, 108), dir = "South-East")
-	PATHS.append = genSeg((5, 152), (24, 134), dir = "South-East")
-	PATHS.append = genSeg((5, 160), (24, 174), dir = "North-East")
-	PATHS.append = genSeg((5, 200), (24, 210), dir = "North-East")
-	PATHS.append = genSeg((5, 220), (16, 235), dir = "North-East")
+	#See Airport_Grid_WithLabels png for labels
+	PATHS.append = genSeg((1, 90), (17, 90), dir = "East") #1E
+	PATHS.append = genSeg((17, 90,), (36, 55), dir = "South-East") #2SE
+	PATHS.append = genSeg((36, 55), (45, 55), dir = "East") #3E
+	PATHS.append = genSeg((45, 55), (60, 55), dir = "North-East") #4 Connects to 5T
+	PATHS.append = genSeg((55, 1), (60, 1), dir = "North-East") #6E
+	PATHS.append = genSeg((1, 235), (36, 235), dir = "South-East") #10E
+	PATHS.append = genSeg((36 ,235), (60, 235), dir = "North")
 
-	PATHS.append = genSeg((10, 90), (24, 55), dir = "South-East")
-	PATHS.append = genSeg((22 ,68), (22, 235), dir = "North")
-
+	"""""
 	PATHS.append = genSeg((24, 55), (36, 55), dir = "East")
 	PATHS.append = genSeg((24,55), (36, 55), dir = "East")
 	PATHS.append = genSeg((24, 84), (36, 80), dir = "South-East")
@@ -212,7 +213,7 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	PATHS.append = genSeg((60, 140), (64, 140), dir = "East")
 	PATHS.append = genSeg((64, 140), (64, 220), dir = "North")
 
-
+"""""
 
 
 
@@ -271,8 +272,6 @@ def genSeg(st, ed, label = False, dir = "None"):
 		* ed	: A tuple (x,y), the end location of the segment
 		* dir	: A string, the direction of travel for that segment if appliciable (some paths don't have that restriction)
 
-		! NOTE ! : This should only be used to create segments that are horizontal, vertical and paths that have a slope of 1:1. 
-					This method cannot handle creating segments which have a slope of say, 5:1 (Not yet anyways).		
 
 		RETURNS:	An object with list of points (and a label and a direction) that can be taken and put into a path. The points that are returned in the list from this 
 					method are the points that are described in init_paths: [(x,y), jet]
@@ -327,6 +326,13 @@ def updatePathDirection(PATHS):
 		ARS: PATHS = Global list of paths
 	"""
 	pass
-	
+
+
+def checkIntersection(Jet, PATHS):
+
+Path.p[0]
+
+
+
 #======================== END SIMULATION METHODS =============================#
 
