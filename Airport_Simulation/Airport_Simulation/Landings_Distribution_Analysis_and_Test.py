@@ -13,9 +13,38 @@ import matplotlib.cbook
 warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
 
 
-NUMBER_OF_TESTS = 1000
+NUMBER_OF_TESTS = 100
 
-def affectOfRushHour():
+def effectOfShiftingRushHour():
+    runwayLandings = [0,0,0]
+    landingsCount = []
+    gapsCount  = []
+    
+    shiftingInMin = 1400
+    
+    for i in range(shiftingInMin):        
+        runwayDist, lCount, gCount, CM, landings = ILD.GeneratePlaneDistribution()
+        landingsCount.append(lCount)
+        gapsCount.append(gCount)
+    
+    np_lCount = np.asarray(landingsCount)        
+    np_gCount = np.asarray(gapsCount)       
+    
+    plt.figure(1)
+    plt.plot(range(np.size(np_lCount)), np_lCount) 
+    plt.title('Plot of landings variation')
+    plt.xlabel('Test Number')
+    plt.ylabel('Landings')
+    plt.show()
+    
+    plt.figure(2)
+    plt.plot(range(np.size(np_gCount)), np_gCount) 
+    plt.title('Plot of gaps variation')
+    plt.xlabel('Test Number')
+    plt.ylabel('Gaps')
+    plt.show()
+    
+def effectOfExpanding_ShrinkingRushHour():
     runwayLandings = [0,0,0]
     landingsCount = []
     gapsCount  = []
@@ -43,8 +72,7 @@ def affectOfRushHour():
     plt.ylabel('Gaps')
     plt.show()
     
-    
-def affectOfProbabilities():
+def effectOfProbabilities():
     plt.figure(1)
     plt.plot(range(np.size(np_regular)), np_regular) 
     plt.title('Plot of mean temperatures using regular diffusion')
@@ -59,7 +87,7 @@ def affectOfProbabilities():
     plt.ylabel('Temperature')
     plt.show()
     
-def affectOfGapTimeDeviation():
+def effectOfGapTimeDeviation():
     plt.figure(1)
     plt.plot(range(np.size(np_regular)), np_regular) 
     plt.title('Plot of mean temperatures using regular diffusion')
@@ -74,7 +102,7 @@ def affectOfGapTimeDeviation():
     plt.ylabel('Temperature')
     plt.show()
     
-def affectOfLandingTimeDeviation():
+def effectOfLandingTimeDeviation():
     plt.figure(1)
     plt.plot(range(np.size(np_regular)), np_regular) 
     plt.title('Plot of mean temperatures using regular diffusion')
@@ -90,4 +118,8 @@ def affectOfLandingTimeDeviation():
     plt.show()
     
 #Choose the analysis to run...
-affectOfRushHour() 
+effectOfShiftingRushHour() 
+effectOfExpanding_ShrinkingRushHour() 
+#effectOfProbabilities()
+#effectOfGapTimeDeviation()
+#effectOfLandingTimeDeviation()
