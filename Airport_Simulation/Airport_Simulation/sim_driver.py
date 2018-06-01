@@ -3,7 +3,6 @@
 #We could also play with them to see how they affect throughput of the airport
 
 #Feel free to add constants, just don't remove any without consulting the team.
-#Basically, don't break it.
 #============================ GLOBAL CONSTANTS ===============================#
 TIME_TO_BOARD	= 60	#In minutes
 TIME_TO_DEBOARD = 60	#In minutes
@@ -11,10 +10,14 @@ TIME_TO_REFUEL	= 60	#In minutes
 TIME_TO_SERVICE = 60	#In minutes
 MAX_PASSENGERS  = 150	
 TIME_TICKS		= 1440  #In minutes 
+TICK = 1				#One minute 
 NUM_JETS_TO_INITILIZE = 40	#We need to find out how many jets there are at time X. 
 							#Time X being the time we start our simulation: 13:00 ? I think we should start at 00:00. 
 							#Regardless, we need to know on average how many jets are at the airport at that time
 							# 100 X by 240 Y 
+
+FUEL_MAX = 6000 #In pounds NEED TO FIND HOW MUCH FUEL JETS CARRY but this is close
+DELTA_SPEED = 2
 TAXI_SPEED = 1
 #Step 4: Initilize paths
 init_paths(PATHS)
@@ -22,6 +25,18 @@ PATHS  = []				#List of all paths at the airport
 TAXI_Q = []
 LAND_Q = []
 INAIR  = []
+
+NUM_JETS_TOOK_OFF = 0
+NUM_JETS_LANDED   = 0
+
+RUNWAY_L = 0
+RUNWAY_M = 1
+RUNWAY_R = 2
+
+RWL_OPEN = True
+RWM_OPEN = True
+RWR_OPEN = True
+
 #========================== END GLOBAL CONSTANTS =============================#
 
 
@@ -96,10 +111,7 @@ def init_gates(atc_object):
 	#
 	# Example: atc_object.terminals.append(terminal) 
 
-	#INITAL TEST: 1 Cargo gate at the top of the airport (33, 113)
-	test_gate = C_Gate(33, 113)
-	atc_object.gates.append(test_gate)
-	
+	#INITAL TEST: 1 Cargo gate at the top of the airport (33, 113)	
 	pass
 
 def init_jets(atc_object):
@@ -128,8 +140,84 @@ def init_jets(atc_object):
 	# Just like with terminals
 	pass
 
+def label_paths(PATHS):
+	"""Method for labeling each intersection on every path. """
+	pass
+
 def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section instead of in the simulaiton method. This to ensure they are global and copies don't get 
 							#Passed around
+	#120x50
+	#x2 240x100
+
+	#Create the Three Main Runways:
+	PATHS.append = genSeg((5,90), (5,235), dir = "North")
+	RUNWAY_L = 0	
+	PATHS.append = genSeg((36, 55), (36, 235), dir="North")
+	RUNWAY_M = 1
+	PATHS.append = genSeg((45, 4), (45, 235), dir = "North")
+	RUNWAY_R = 2
+
+#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y12)
+
+	#Paths Connected to Runway Left <-> Center Taxiway
+	PATHS.append = genSeg((5, 90), (10, 90), dir = "East")
+	PATHS.append = genSeg((5, 110,), (10, 90), dir = "South-East")
+	PATHS.append = genSeg((5, 132), (24, 108), dir = "South-East")
+	PATHS.append = genSeg((5, 152), (24, 134), dir = "South-East")
+	PATHS.append = genSeg((5, 160), (24, 174), dir = "North-East")
+	PATHS.append = genSeg((5, 200), (24, 210), dir = "North-East")
+	PATHS.append = genSeg((5, 220), (16, 235), dir = "North-East")
+
+	PATHS.append = genSeg((10, 90), (24, 55), dir = "South-East")
+	PATHS.append = genSeg((22 ,68), (22, 235), dir = "North")
+
+	PATHS.append = genSeg((24, 55), (36, 55), dir = "East")
+	PATHS.append = genSeg((24,55), (36, 55), dir = "East")
+	PATHS.append = genSeg((24, 84), (36, 80), dir = "South-East")
+	PATHS.append = genSeg((24,134), (36, 131), dir = "South-East")
+	PATHS.append = genSeg((24, 174) (36, 174), dir = "East")
+	PATHS.append = genSeg((23, 210), (36, 210), dir = "East")
+	PATHS.append = genSeg((16, 230), (22, 230), dir = "East")
+	PATHS.append = genSeg((22, 230),(36, 235), dir = "East")
+
+	PATHS.append = genSeg((36, 55) (45, 55), dir = "East")
+	PATHS.append = genSeg((36, 60), (45, 60), dir = "East")
+	PATHS.append = genSeg((36, 76), (45, 60), dir = "South-East")
+	PATHS.append = genSeg((36, 110), (45, 95), dir = "South-East")
+	PATHS.append = genSeg((36,130),(45,110), dir = "South-East")
+	PATHS.append = genSeg((36, 130), (45, 155), dir = "North-East")
+	PATHS.append = genSeg((36, 160), (45,185), dir = "North-East")
+	PATHS.append = genSeg((36, 175), (45, 160), dir = "SoutheEast")
+	PATHS.append = genSeg((36, 195), (45, 210), dir = "North-East")
+	PATHS.append = genSeg((36, 210), (45, 210), dir = "East")
+	PATHS.append = genSeg((36, 220), (45, 220), dir = "East")
+	PATHS.append = genSeg((36, 235), (45, 235), dir = "East")
+
+	PATHS.append = genSeg((45, 2), (62,2), dir = "East")
+	PATHS.append = genSeg((62, 2), (62,37), dir = "North")
+
+	PATHS.append = genSeg((45, 37), (60, 36), dir = "East")
+	PATHS.append = genSeg((45, 50), (60, 50), dir = "East")
+	PATHS.append = genSeg((45, 60), (6, 60), dir = "East")
+	PATHS.append = genSeg((45, 90), (60, 90), dir = "East")
+	PATHS.append = genSeg((45, 110), (60, 110), dir = "East")
+	PATHS.append = genSeg((45, 140), (60, 140), dir = "East")
+	PATHS.append = genSeg((45, 150), (60, 150), dir = "East")
+	PATHS.append = genSeg((45, 185), (60, 180), dir = "South-East")
+	PATHS.append = genSeg((45, 210), (60, 210), dir = "East")
+	PATHS.append = genSeg((45, 230), (60, 230), dir = "East")
+	PATHS.append = genSeg((45, 235), (60, 235), dir = "East")
+
+	PATHS.append = genSeg((60, 140), (60, 235), dir = "North")
+	PATHS.append = genSeg((60, 140), (64, 140), dir = "East")
+	PATHS.append = genSeg((64, 140), (64, 220), dir = "North")
+
+
+
+
+
+
+
 	""" ARGS: PATHS, the global list that holds paths
 	
 	TODO: Gridsize is 50 x 120
@@ -141,7 +229,9 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 
 		PATHS ARE NOW OBJECTS AGAIN
 		
-		Format: [[(x,y), jet],[(x,y), jet],[(x,y), jet]] 
+		Format: [[(x,y), jet],[(x,y), jet],[(x,y), jet]]
+		[[ (1, 0), jet, empty label] 
+        #[ (1, 1), jet, (index of intersecting path, index of point in intersecting path) 
 				
 		FORMAT OF ENTRY FOR EACH POINT:	[(x,y), jet] 
 		
@@ -170,17 +260,11 @@ def init_paths(PATHS): #We may want to call this in the GLOBAL CONSTANTS section
 	#		A possible solution: Don't have diagonal paths, kinda. If you have to curve or do a diagonal path, you just break it up into up down left right movements.
 	#		This way we don't have to deal with this weird case of a diagonal being "faster". We'll talk.
 
-	#ALSO NEED TO CREATE A "EDGE LIST" for what paths share which path share which points and what not
+	
 
-	direction = "None"
-	a = genSeg((0,0), (5,0), dir = "East")
-	b = genSeg((5,0), (5,5), dir = "North")
-	PATHS.append(a)
-	PATHS.append(b)
-	jet = False		
-	pass
+	
 
-def genSeg(st, ed, label, dir = "None"):
+def genSeg(st, ed, label = False, dir = "None"):
 	"""	Method for generateing individual sections of a path.		
 		Args: 
 		* st	: A tuple (x,y), the start location of the segment
@@ -235,7 +319,7 @@ def genSeg(st, ed, label, dir = "None"):
 			for i in range(abs_x):
 				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, label])
 
-	path = Path(label, dir, seg)
+	path = Path(dir, seg)
 	return path
 
 def updatePathDirection(PATHS):
@@ -246,36 +330,3 @@ def updatePathDirection(PATHS):
 	
 #======================== END SIMULATION METHODS =============================#
 
-#-jet variable with the name, coordinates, and the status(False-in air, true-on ground)
-#j1 = jet("CA111", 25, 50, False)
-#j = jet("AA302", 40, 10, True)
-
-#A = ATC()
-
-#A.land.append(j1)
-#A.take_off.append(j2)
-#r1 = runway()
-#r1.timestamp()
-#A.takeOff(r1)
-#r1.timestamp()
-#A.land(j1)
-
-def main():
-	##airport_sim()	
-	#start = (10, 0)
-	#end = (0,0)
-	#segment = genSeg(start, end)
-	#tjet = Jet("TestJet", 5000, 300000, "No stat lol", 0, 0)
-	#print(tjet.name)
-	#segment[0][1] = tjet;
-	#print(segment)
-	#print("\n")
-	#print(segment[0][1].name)
-	#print("\n")
-
-	#segment[0][1] = False
-	#segment[1][1] = tjet
-
-	#print(segment)
-	pass
-#main()

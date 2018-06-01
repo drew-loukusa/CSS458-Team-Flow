@@ -14,31 +14,23 @@ class Runway(threading.Thread):
 
 	def clearRunway(self):
 		self.lock.release()
-		print("Runway cleared\n")
+		#print("Runway cleared\n")
 		self.timestamp()
 		
 	def taking_Off(self, ATC):
 		self.lock.acquire()
 		time.sleep(10)
-		print("Plane %s has taken off\n" %jet.name)
+		#print("Plane %s has taken off\n" %jet.name)
 		self.timestamp()
 		self.clearRunway()
 
 	def landing(self, ATC):
 		self.lock.acquire()
 		time.sleep(5)
-		print("Jet %s has landed\n" %jet.name)
+		#print("Jet %s has landed\n" %jet.name)
 		self.timestamp()
 		self.clearRunway()
 		
 	def timestamp(self):
 		print(datetime.datetime.fromtimestamp(time.time()).strftime(''))
 
-
-#A = 0		#In the air
-#H = 1		#In holding pattern
-#L = 2		#Landing
-#TXR = 3	#Taxiing to runway
-#TXG = 4	#Taxiing to gate
-#TE = 5		#At a terminal
-#TA = 6		#Taking off
