@@ -153,7 +153,7 @@ def effectOfProbabilities():
     legend.get_frame().set_facecolor('#FFFFFF')
     
     plt.title('Plot of landings vs gaps as a result in increased landing probability')
-    plt.xlabel('Probability increase (in minutes) of a landing during rush hour')
+    plt.xlabel('Probability increase of a landing during rush hour')
     plt.ylabel('Operations')
     plt.show()
     
