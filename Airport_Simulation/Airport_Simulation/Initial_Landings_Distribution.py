@@ -10,13 +10,11 @@
 
 import random
 
-TYPE_P = "PASSANGER"
-TYPE_C = "CARGO"
-TIME_LANDING = 1.4              #hardcoded because is used at SEA-TAC
-TIME_LANDING_DEVIATION = 0.1    #by default, could be changed	       
+TYPE_P = "PASSENGER"
+TYPE_C = "CARGO"         
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
-RUNWAYS = (1,2,3)   #Runway 2 is not in use
+RUNWAYS = (0,1,2)   #Runway 2 is not in use
 
 class Landing:	#Will be appended to the distribution list
     def __init__(self, timeIn, runwayIn, planeTypeIn):	
@@ -29,8 +27,8 @@ class Gap: 		#Will be appended to the distribution list
         self.time = timeIn				#minutes the gap will take
         self.runway = runwayIn			#the runway on which this gap is available
 
-		
-def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.45, high_plane_prob=0.7):
+
+def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.45, high_plane_prob=0.7, landingTime=1.4, landingSigma=0.1, morning_R_S=360, morning_R_E=600, evening_R_S=840, evening_R_E=1200):
     """ - The hours parameters has to be given in Military Time:"
     		   MIN: 0
 		      MAX: 24
@@ -39,9 +37,11 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
 			   MIN: 0
 			   MAX: 1
     """
-	
-    MORNING_RUSH_RANGE = (360, 600)		#these are the start and end in minutes of morning rush hour. 06:00 - 10:00 Military
-    EVENING_RUSH_RANGE = (840, 1200)  #these are the start and end in minutes of evening rush hour. 14:00 - 20:00
+    TIME_LANDING = landingTime             
+    TIME_LANDING_DEVIATION = landingSigma 
+    	
+    MORNING_RUSH_RANGE = (morning_R_S, morning_R_E)    #these are the start and end in minutes of morning rush hour. 06:00 - 10:00 Military
+    EVENING_RUSH_RANGE = (evening_R_S, evening_R_E)    #these are the start and end in minutes of evening rush hour. 14:00 - 20:00
     
     HS = hour_start
     HE = hour_end
@@ -69,11 +69,11 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                 
                 LandingChance = RandP()
                 if(LandingChance > HPP):                                       
-                    rIndex, dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding(TIME_LANDING, TIME_LANDING_DEVIATION) 
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
-                    runwayLandings[rIndex-1] += 1
+                    runwayLandings[rIndex] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -85,11 +85,11 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
                 
                 LandingChance = RandP()
                 if(LandingChance > HPP):                                       
-                    rIndex, dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding(TIME_LANDING, TIME_LANDING_DEVIATION)  
                     distribution.append(tempLanding)
                     landingCount += 1
                     currentMinutes += dT
-                    runwayLandings[rIndex-1] += 1
+                    runwayLandings[rIndex] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -100,12 +100,12 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
             else:
                 LandingChance = RandP()
                 if(LandingChance > RPP):                         #this is where the change is. RPP instead of HPP                     
-                    rIndex, dT, tempLanding = generateLanding() 
+                    rIndex, dT, tempLanding = generateLanding(TIME_LANDING, TIME_LANDING_DEVIATION)  
                     distribution.append(tempLanding)
                     
                     landingCount += 1
                     currentMinutes += dT                   
-                    runwayLandings[rIndex-1] += 1
+                    runwayLandings[rIndex] += 1
                     
                 else:  
                     dT, tempGap = generateGap()
@@ -128,12 +128,12 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
 	
 
 def RandP():	
-	return random.random()
+	return round(random.random(), 1)
 
-def generateLanding():
-    tempRunway = random.randint(1,2)
-    if (tempRunway == 2):
-        tempRunway = 3
+def generateLanding(landingTime, landingDeviation):
+    tempRunway = random.randint(0,1)
+    if (tempRunway == 1):
+        tempRunway = 2
                     
     tempTypeProb = RandP()
     #print(tempTypeProb)
@@ -144,9 +144,9 @@ def generateLanding():
         tempPlaneType = TYPE_C
                         
     qR = random.randint(1,2)
-    tempTime = TIME_LANDING - TIME_LANDING_DEVIATION 
+    tempTime = landingTime - landingDeviation 
     if (qR == 2):    
-        tempTime = TIME_LANDING_DEVIATION + TIME_LANDING   
+        tempTime = landingDeviation + landingTime  
         
     #print(tempTime)
                         
@@ -162,15 +162,19 @@ def generateGap():
     return (tempGapTime, retGap)
     
 #Test
-runwayDist, lCount, gCount, CM, landings = GeneratePlaneDistribution()
-possibleAircraftOperations = gCount + lCount
-print("Runway 1 landings: " + str(runwayDist[0]))
-print("Runway 2 landings: " + str(runwayDist[1]))
-print("Runway 3 landings: " + str(runwayDist[2]))
-print("Landings: " + str(lCount))
-print("Gaps: " + str(gCount))
-print("Total (Landings + Potential Takeoffs): " + str(possibleAircraftOperations))
-print("Goal for total AircraftOperations: 1139 +- 20")
-print("TotalMinutes: " + str(CM))
-print()
-#print(landings)
+def mainTest():
+    runwayDist, lCount, gCount, CM, landings = GeneratePlaneDistribution(0, 24, 1139, 0.3, 0.7, 1.4, 0.1, 360, (600+300), 840, (1200+300))
+    possibleAircraftOperations = gCount + lCount
+    print("Runway 1 landings: " + str(runwayDist[0]))
+    print("Runway 2 landings: " + str(runwayDist[1]))
+    print("Runway 3 landings: " + str(runwayDist[2]))
+    print("Landings: " + str(lCount))
+    print("Gaps: " + str(gCount))
+    print("Total (Landings + Potential Takeoffs): " + str(possibleAircraftOperations))
+    print("Goal for total AircraftOperations: 1139 +- 20")
+    print("TotalMinutes: " + str(CM))
+    print()
+    #print(landings)
+    
+    
+mainTest()    
