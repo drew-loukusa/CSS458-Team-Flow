@@ -1,4 +1,5 @@
 
+import Initial_Landings_Distribution as ILD
 import time
 import Runway as runway
 import random as R
@@ -44,13 +45,32 @@ class C_Jet(Jet): #Cargo jet
 		self.cargo			#In pounds
 
 class GTC:	#Ground Traffic Control: Serves as main logic controller of simulation
-	def __init__(self):				
+	def __init__(self):
 		self.jets = []				#List of all jets in simulation
 		self.jets_in_air = []
 		self.holding_q	= []		#This should be treated as a queue: FIFO		
 		self.takeoff_q	= []			
 		self.gates		= []		#List of all gates at the airport		
+        runwayDist, lCount, gCount, CM, landings = ILD.GeneratePlaneDistribution(0, 24, 1139, 0.45, 0.6, 1.4, 0.1, 360, 600, 840, 1200)
+        
+        for i in range(len(landings)):
+            currentObject = landings[i]
 
+            if(currentObject is type("Landing")):
+                currentLanding = currentObject
+                landingTime = curentLanding.time
+                onRunway = curentLanding.runway
+                planeType = curentLanding.planeType
+                jName = "jet" + string(i)
+                tempJet = Jet(jName, 2000, 530000, 2, -1, -1, 150, None, 2)
+
+                if (currentLanding.planeType == "PASSENGER"):
+                    tempJet = P_Jet(tempJet)
+                else:
+                    tempJet = C_Jet(tempJet)
+
+                jets.append(tempJet)
+                
 	def update_jets():
 		""" Updates the state of all jets in the simulation. 
 			Path switching when necessary is done in this method."""
