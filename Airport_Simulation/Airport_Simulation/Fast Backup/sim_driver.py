@@ -350,13 +350,13 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 		if(path.p[jet.loc][2] != False):
 
 			tup = path.p[jet.loc][2]		#Grab tuple with info from the path point where jet is.
-			NextPath = PATHS[tup[0]]		#Grab potential path
+			Nextpath = PATHS[tup[0]]		#Grab potential path
 			correct_path_dir = False		
 			clear_ahead = False					
 
 			#Set valid_dirs to the directons based on apt_status of the jet. 
 			valid_dirs = [] 
-			if(directions != None):
+			if(direction != None):
 				valid_dirs = directions
 			elif(jet.apt == 3): #TXR 
 				valid_dirs = [ "East", "North-East", "South-East","None"]
@@ -364,10 +364,6 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				valid_dirs = [ "West", "North-West", "South-West", "None"]
 
 			# Check if the path has a valid direction and is not blocked
-
-			def jetAhead(jet):
-				return False
-
 			if(NextPath.dir in valid_dirs):
 				correct_path_dir = True
 			if(not jetAhead(jet)): #Not implemented 
@@ -649,71 +645,40 @@ def init_paths(all_paths):
 
 	#120x50
 	#x2 240x100
-#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y12)
 
 	#Create the Three Main Runways:
-	all_paths.append(genSeg((1,70), (1,235), dir = "North"))	#0
+	all_paths.append(genSeg((5,90), (5,235), dir = "North"))
 	RUNWAY_L = 0	
-	all_paths.append(genSeg((36, 55), (36, 235), dir="North"))  #1
+	all_paths.append(genSeg((36, 55), (36, 235), dir="North"))
 	RUNWAY_M = 1
-	all_paths.append(genSeg((45, 4), (45, 235), dir = "North"))	#2
+	all_paths.append(genSeg((45, 4), (45, 235), dir = "North"))
 	RUNWAY_R = 2
-	all_paths.append(genSeg((60, 1), (60, 235), dir="North-East")) #3
+
+#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y12)
+
+	#Paths Connected to Runway Left <-> Center Taxiway
+	#Create the Three Main Runways:
+	all_paths.append(genSeg((1,90), (1,235), dir = "North"))
+	RUNWAY_L = 0	
+	all_paths.append(genSeg((36, 55), (36, 235), dir="North"))
+	RUNWAY_M = 1
+	all_paths.append(genSeg((45, 4), (45, 235), dir = "North"))
+	RUNWAY_R = 2
+	all_paths.append(genSeg((60, 1), (60, 235), dir="North-East"))
 	Terminal_path = 3
 
 	#Paths are written from grids (x1,y1) - (x1, y12) and than (x2, y1) (x2, y2)
 
 	#Paths Connected to Runway Left <-> Center Taxiway
 	#See Airport_Grid_WithLabels png for labels
-	all_paths.append(genSeg((1, 70), (16, 70), dir	= "East"))			#1E		#4	
-	all_paths.append(genSeg((16, 70), (31, 55), dir = "South-East"))	#2SE	#5
-	all_paths.append(genSeg((26, 55), (60, 55), dir = "East"))			#3E		#6
-	all_paths.append(genSeg((45, 34), (60, 34), dir = "East"))			#9E	    #7 Connects to 5T	
-	all_paths.append(genSeg((55, 1), (60, 1), dir	= "North-East"))	#6E		#8
-	all_paths.append(genSeg((1, 235), (60, 235), dir = "South-East"))	#10E	#9
-
-def label_paths(PATHS):
-	"""Method for labeling each intersection on every path. """
-
-	PATHS[0].p[0][2] = (4, 0)	 #
-	PATHS[0].p[144][2] = (9, 0) #
-
-	PATHS[1].p[0][2] = (6, 5)    #
-	PATHS[1].p[179][2] = (9, 35) #
-
-	PATHS[2].p[0][2] = (8, 0)	#
-	PATHS[2].p[33][2] = (7, 0) #
-	PATHS[2].p[54][2] = (6, 18) # 
-	PATHS[2].p[230][2] = (9, 44) #
-
-	PATHS[3].p[0][2] = (6, 4) # 10E
-	PATHS[3].p[33][2] = (6, 34) #3E
-	PATHS[3].p[54][2] = (7, 14) #9E
-	PATHS[3].p[232][2] = (9, 59) #6E
-	
-	PATHS[4].p[0][2] = (0, 0) #
-	PATHS[4].p[14][2] = (5, 0) #
-
-	PATHS[5].p[0][2] = (4, 14) #
-	PATHS[5].p[14][2] = (6, 0) #
-
-	PATHS[6].p[0][2] = (5, 14) #
-	PATHS[6].p[9][2] = (1,0) #
-	PATHS[6].p[17][2] = (2,0) #
-	PATHS[6].p[33][2] = (7, 53) #
-	
-	PATHS[7].p[0][2] = (2, 33) #
-	PATHS[7].p[14][2] = (3, 33) #
-
-	PATHS[8].p[0][2] = (2, 0) #
-	PATHS[8].p[0][2] = (3, 0) #
-
-	PATHS[9].p[0][2] = (0, 144) #
-	PATHS[9].p[35][2] = (1, 179) #
-	PATHS[9].p[0][2] = (2, 230) #
-	PATHS[9].p[0][2] = (3, 233) #
+	all_paths.append(genSeg((1, 90), (17, 90), dir = "East")) #1E
+	all_paths.append(genSeg((17, 90,), (36, 55), dir = "South-East")) #2SE
+	all_paths.append(genSeg((36, 55), (45, 55), dir = "East")) #3E
+	all_paths.append(genSeg((45, 55), (60, 55), dir = "North-East")) #4 Connects to 5T
+	all_paths.append(genSeg((55, 1), (60, 1), dir = "North-East")) #6E
+	all_paths.append(genSeg((1, 235), (36, 235), dir = "South-East")) #10E
+	all_paths.append(genSeg((36 ,235), (60, 235), dir = "North"))
 init_paths(PATHS)
-label_paths(PATHS)
 
 #========================== END GLOBAL CONSTANTS =============================#
 
@@ -854,11 +819,11 @@ def init_paths(all_paths):
 
 	#Paths Connected to Runway Left <-> Center Taxiway
 	#See Airport_Grid_WithLabels png for labels
-	all_paths.append(genSeg((1, 70), (16, 70), dir	= "East"))			#1E		#4	
+	all_paths.append(genSeg((1, 70), (16, 70), dir = "East"))			#1E		#4	
 	all_paths.append(genSeg((16, 70), (31, 55), dir = "South-East"))	#2SE	#5
-	all_paths.append(genSeg((26, 55), (60, 55), dir = "East"))			#3E		#6
-	all_paths.append(genSeg((45, 34), (60, 34), dir = "East"))			#9E	    #7 Connects to 5T	
-	all_paths.append(genSeg((55, 1), (60, 1), dir	= "North-East"))	#6E		#8
+	all_paths.append(genSeg((26, 55), (45, 55), dir = "East"))			#3E		#6
+	all_paths.append(genSeg((45, 55), (60, 55), dir = "North-East"))	#4 Connects to 5T	#7
+	all_paths.append(genSeg((55, 1), (60, 1), dir = "North-East"))		#6E		#8
 	all_paths.append(genSeg((1, 235), (60, 235), dir = "South-East"))	#10E	#9
 
 def genSeg(st, ed, label = False, dir = "None"):
@@ -915,15 +880,34 @@ def genSeg(st, ed, label = False, dir = "None"):
 			seg.append([st,jet, label])
 			for i in range(abs_x):
 				seg.append([(st[0]+ dt_x, st[1] + dt_y), jet, label])
-	#call Path method-parameter dir and seg to generate the path
+
 	path = Path(dir, seg)
 	return path
 
+def label_paths(PATHS):
+	"""Method for labeling each intersection on every path. """
+
+	PATHS[0].p[144][2] = (10, 0)
+	PATHS[0].p[0][2] = (4, 0)
+
+	PATHS[1].p[179][2] = (9, 35)
+	PATHS[1].p[0][2] = (6, 5) 
+
+	PATHS[2].p[230] = (9, 44)
+	PATHS[2].p[0] = (8,0)
+
+	PATHS[3].p[233] = (9,59)
+	PATHS[3].p[0] = (6,4)
+
+
+	pass
+
+
 def updatePathDirection(PATHS):
-	"""	Update the direction of directed paths that change when runways switch direction. 
+	"""Update the direction of directed paths that change when runways switch direction. 
 		ARS: PATHS = Global list of paths
 	"""
-	#path loop gives 8 possible directions of a jet on a path
+
 	for path in PATHS:
 		if(path.dir == "North"):
 			path.dir = "South"
