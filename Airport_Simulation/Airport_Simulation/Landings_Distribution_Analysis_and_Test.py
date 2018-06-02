@@ -54,7 +54,7 @@ def effectOfShiftingRushHour():
     fig, ax = plt.subplots()
     #plt.ylim(540, 620)
     ax.plot(range(np.size(np_avg_lCount)), np_avg_lCount, 'g', label='Landings') 
-    ax.plot(range(np.size(np_avg_totalOps)), np_avg_totalOps, 'b', label='Landings+Gaps')
+    ax.plot(range(np.size(np_avg_gCount)), np_avg_gCount, 'b', label='Gaps')
     
     legend = ax.legend(loc='upper left', shadow=False, fontsize='medium')
     legend.get_frame().set_facecolor('#FFFFFF')
@@ -65,7 +65,7 @@ def effectOfShiftingRushHour():
     plt.show()
     
     
-def effectOfExpanding_ShrinkingRushHour():
+def effectOfExpanding_RushHour():
     avg_runwayLandings = []
     avg_landingsCount = []
     avg_gapsCount  = []
@@ -100,15 +100,15 @@ def effectOfExpanding_ShrinkingRushHour():
     fig, ax = plt.subplots()
     #plt.ylim(540, 620)
     ax.plot(shiftingInMin, np_avg_lCount, 'g', label='Landings') 
-    #ax.plot(shiftingInMin, np_avg_gCount, 'b', label='Gaps')
-    ax.plot(shiftingInMin, np_avg_totalOps, 'g', label='Landings+Gaps') 
+    ax.plot(shiftingInMin, np_avg_gCount, 'b', label='Gaps')
+    #ax.plot(shiftingInMin, np_avg_totalOps, 'g', label='Landings+Gaps') 
     
     legend = ax.legend(loc='upper left', shadow=False, fontsize='medium')
     legend.get_frame().set_facecolor('#FFFFFF')
     
     plt.title('Plot of landings vs gaps over rush hour expansion')
     plt.xlabel('Expansion Amount (in minutes) to end time of rush hour')
-    plt.ylabel('Landings and Gaps')
+    plt.ylabel('Operations')
     plt.show()
     
     
@@ -154,7 +154,7 @@ def effectOfProbabilities():
     
     plt.title('Plot of landings vs gaps as a result in increased landing probability')
     plt.xlabel('Probability increase (in minutes) of a landing during rush hour')
-    plt.ylabel('Landings and Gaps')
+    plt.ylabel('Operations')
     plt.show()
     
 
@@ -164,7 +164,7 @@ def effectOfLandingTimeDeviation():
     avg_gapsCount  = []
     #avg_operations = []
     
-    increaseSigma = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
+    increaseSigma = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     
     for i in range(len(increaseSigma)): 
         landingsCount = []
@@ -173,7 +173,7 @@ def effectOfLandingTimeDeviation():
                                              #hour_start=0, hour_end=24, landing_limit=1139, regular_plane_prob=0.45, high_plane_prob=0.6, ...
                                              #...landingTime=1.4, landingSigma=0.1, morning_R_S=360, morning_R_E=600, evening_R_S=840, evening_R_E=1200
         for j in range(NUMBER_OF_TESTS):          
-            runwayDist, lCount, gCount, CM, landings = ILD.GeneratePlaneDistribution(0, 24, 1139, 0.6, 0.6, 1, 0.1+increaseSigma[i], 360, 600, 840, 1200)
+            runwayDist, lCount, gCount, CM, landings = ILD.GeneratePlaneDistribution(0, 24, 1139, 0.45, 0.6, 1, 1+increaseSigma[i], 360, 600, 840, 1200)
             landingsCount.append(lCount)
             gapsCount.append(gCount)
             
@@ -200,12 +200,12 @@ def effectOfLandingTimeDeviation():
     
     plt.title('Plot of landings vs gaps as a result of landing time deviation')
     plt.xlabel('Deviation (in minutes) from average landing time of 1.4')
-    plt.ylabel('Landings and Gaps')
+    plt.ylabel('Operations')
     plt.show()
     
     
 #Choose the analysis to run...
 #effectOfShiftingRushHour() 
-effectOfExpanding_ShrinkingRushHour() 
-#effectOfProbabilities()
+#effectOfExpanding_RushHour() 
+effectOfProbabilities()
 #effectOfLandingTimeDeviation()
