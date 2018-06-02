@@ -423,28 +423,28 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				if(not positive):
 					j = -i 
 				temp = PATHS[jet.path].p[jet.loc + j][2] 
-				print(PATHS[jet.path].p)
-				index = PATHS[jet.path].p[jet.loc + j][2][0] 
-				if(index == 0 or 1 or 2):
-					if(index == 0):
-						if(not RWL_OPEN):
-							return False
+				if(temp != False):
+					index = PATHS[jet.path].p[jet.loc + j][2][0] 
+					if(index == 0 or 1 or 2):
+						if(index == 0):
+							if(not RWL_OPEN):
+								return False
 						
-						#If the jet is taxiing to a runway it should not step onto the runway.
-						elif(jet.apt == 3): 
-							return False
+							#If the jet is taxiing to a runway it should not step onto the runway.
+							elif(jet.apt == 3): 
+								return False
 
-					elif(index == 1):
-						if(not RWM_OPEN):
-							return False
-						elif(jet.apt == 3):
-							return False
+						elif(index == 1):
+							if(not RWM_OPEN):
+								return False
+							elif(jet.apt == 3):
+								return False
 
-					elif(index == 2):
-						if(not RWR_OPEN):
-							return False		
-						elif(jet.apt == 3):
-							return False
+						elif(index == 2):
+							if(not RWR_OPEN):
+								return False		
+							elif(jet.apt == 3):
+								return False
 			
 			#Check if the path ends:
 			end_path = False
