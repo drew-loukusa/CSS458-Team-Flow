@@ -10,7 +10,7 @@
 
 import random
 
-TYPE_P = "PASSANGER"
+TYPE_P = "PASSENGER"
 TYPE_C = "CARGO"         
 
 #FROM LEFT to RIGHT these are the runway numbers, no matter the direction from which a plane is landing
