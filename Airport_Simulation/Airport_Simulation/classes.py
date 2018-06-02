@@ -1,5 +1,3 @@
-
-import Initial_Landings_Distribution as ILD
 import time
 import Runway as runway
 import random as R
@@ -11,7 +9,7 @@ from sim_driver import *
 #		Will be added back in later as needed? 
 
 class Jet:	#Base jet class
-	def __init__(self, name, fuel, weight, apt, path, pathIndex, speed, gate = None, tag = 0):	
+	def __init__(self, name, fuel, weight, apt, path, pathIndex, speed, gate = None, tag = 0, runway_picked = None):	
 		self.name	= name		#AA302
 		self.fuel	= fuel		#In gallons?		
 		self.weight	= weight	#In pounds
@@ -22,6 +20,7 @@ class Jet:	#Base jet class
 		self.speed = speed		#Ground speed (MPH) ?
 		self.target_gate =	gate 
 		self.time_at_gate = tag #Tracks how long the jet has to be at the gate. Time gets added by boarding, refueling
+		self.runway_picked = 2	#Tracks which runway the jet is going to
 		#self.atc_status		#ATC Status
 		#self.emg_status		#Emergency Status
 		#self.heading			#In degrees (0 - 360)
@@ -45,36 +44,19 @@ class C_Jet(Jet): #Cargo jet
 		self.cargo			#In pounds
 
 class GTC:	#Ground Traffic Control: Serves as main logic controller of simulation
-	def __init__(self):
+	def __init__(self):				
 		self.jets = []				#List of all jets in simulation
 		self.jets_in_air = []
 		self.holding_q	= []		#This should be treated as a queue: FIFO		
 		self.takeoff_q	= []			
-		self.gates		= []		#List of all gates at the airport		
-		runwayDist, lCount, gCount, CM, landings = ILD.GeneratePlaneDistribution(0, 24, 1139, 0.45, 0.6, 1.4, 0.1, 360, 600, 840, 1200)
-		
-		for i in range(len(landings)):
-			currentObject = landings[i]
+		self.gates		= []		#List of indexs in the main taxiway that have "gates"	
+		self.gates_in_use = []		#Gate indexs get moved from gates to this when in use
 
-			if(currentObject is type("Landing")):
-				currentLanding = currentObject
-				landingTime = curentLanding.time
-				onRunway = curentLanding.runway
-				planeType = curentLanding.planeType
-				jName = "jet" + string(i)
-				tempJet = Jet(jName, 2000, 530000, 2, -1, -1, 150, None, 2)
-
-				if (currentLanding.planeType == "PASSENGER"):
-					tempJet = P_Jet(tempJet)
-				else:
-					tempJet = C_Jet(tempJet)
-
-				jets.append(tempJet)
-				
-	def update_jets():
+	def update_jets(self):
 		""" Updates the state of all jets in the simulation. 
 			Path switching when necessary is done in this method."""
-		for jet in jets:
+		print("update Called")
+		for jet in self.jets:
 			
 			# NOT CURRENTLY USING FIRST TWO STATUSES: Spawning jets directly 
 			# onto runway using mostly uniform distribution. With the exception
@@ -88,48 +70,125 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 
 			#----------------- ! IMPORTANT ! -------------------------#
 
-			
+
+			if(TIME_TICKS % 5 == 0):
+				
+				#Pick a random OPEN runway, left middle right.
+				#If there are no open runways, then do not spawn a new jet
+				
+				if(RWL_OPEN or RWM_OPEN or RWR_OPEN):
+					picked = R.randint(0,2)
+					print("Before picking runway")
+					while(RUNWAYS[picked] == False):
+						picked = R.randint(0,2)					
+					print("After picking runway")
+
+					path = PATHS[picked]
+					loc = len(PATHS[picked].p) - 1
+					new_jet = Jet("Testy Boi", 6000, 300000, 2, path, loc, 5000)
+					
+					self.jets.append(jet)
+					global NUM_JETS_LANDED
+					NUM_JETS_LANDED += 1
+					global NUM_JETS
+					NUM_JETS += 1
+					global TOTAL_JETS_IN_SIM
+					TOTAL_JETS_IN_SIM += 1
+					
 
 			#-------------------------- If jet is landing --------------------------#
 			if(jet.apt == 2):
+				print("Case 2")
 				#Change status of ruway to closed if not already changed:				
 				if(RWL_OPEN and RWM_OPEN and RWR_OPEN):
-					change_runway_status(jet, False)
+					self.change_runway_status(jet, False)
 				#1. Move it down the runway to a spot where it stops and takes an open taxiway
 				#	or a taxiway with room. 
 				#2. Change status to TXG - 4 - Taxiing to gate
 
 				# If slowing down - Keep moving jet
-				if(jet.speed > TAXI_SPEED):
-					move(jet)
-					reduceSpeed(jet)
+				#if(jet.speed > TAXI_SPEED):
+				#	move(jet)
+				#	reduceSpeed(jet)
 
 				# If jet has reached taxiing speed after most recent 
 				# reduceSpeed() call, look for taxiways
 				if(jet.speed == TAXI_SPEED):	
-					change_runway_status(jet, True)
+					self.change_runway_status(jet, True)
 					jet.apt = 4				  # Change Status to TXG - Taxiing to gate
-					switch_paths(jet)		  # Switch paths e.g. move onto taxiway if any available
-					move(jet)			  # Move it either way: If it didn't move onto a path, keep moving
+					self.switch_paths(jet)		  # Switch paths e.g. move onto taxiway if any available
+					self.move(jet)			  # Move it either way: If it didn't move onto a path, keep moving
 											  #		If it found a path it it wasn't valid, keep moving
 											  #		If it it found a path and switched to it, still move it.
 
 			#-------------------------- If jet is going to a runway: ---------------#
-			elif(jet.apt == 3):
-				#1. Move it from the terminal to the MAIN taxiway
-				if(check_for_intersection(jet)):
-					switch_paths(jet, ["North", "South"]) #If available, switch to the main taxiway
-				
-				#2. Move it UP or DOWN the main taxiway untill it reaches the top or bottom of the airport
-				move(jet)		
-
+			elif(jet.apt == 3):						
+				print("Case 3")
+				# 1. Move the jet to the main taxiway
+				# 2. Move the jet up and down the main taxiway
 				#3. Move it LEFT untill it reaches the takeoff queue OR it reaches the runway				
 				#4. IF TAKING OFF: Change status to TA - 6 - Taking off 
 				#5. IF IN TAKEOFF QUEUE: No change to status
-				pass
+				Moved = self.move(jet)
+				#If the jet cannot be moved:
+				if(not Moved):				
+					# Move it from the terminal to the MAIN taxiway
+					if(check_for_intersection(jet, MAIN_TAXIWAY_SOUTH)):
+						self.switch_paths(jet, ["North", "South"]) #If available, switch to the main taxiway
+					
+					#If it's already on the main taxiway, check for the taxiway that will take it to the runways:
+					elif(check_for_intersection(jet, 45)):
+						self.switch_paths(jet, ["West"])					
+					
+					 #Do nothing if there's a jet ahead of this jet
+					elif(P[jet.loc + 1].jet != False):
+						pass
+					
+					#If this jet isn't in one of the other situations, then it's next to runway right read to pick a runway:
+					elif(True):																	
+						
+						#If a runway hasn't been picked yet, pick one.
+						if(jet.runway_picked == None):
+							jet.runway_picked = R.randint(0,1)
+							if(jet.runway_picked == 1):
+								jet.runway_picked +=1 
 
+						#If we picked runway right:
+						elif(runway_picked == 2):
+							if(RWR_OPEN):								
+								#Change status so we can move it onto the runway
+								jet.apt = 6		
+								
+								#Move it onto the runway
+								self.move(jet)		
+								
+								#Switch the path of the jet to the runway
+								self.switch_paths()	
+						
+						#If we picked runway left
+						if(runway_picked == 0):										
+
+							#If crossing runway right:
+							if(PATHS[jet.path][jet.loc - 1]  == 2):							
+								jet.apt = 6								
+								# Move the jet across the runway onto the other taxiway
+								# Switch paths if necessary
+								if(not move(jet)):
+									self.switch_paths(jet, ["West"])
+							
+								#Change the status 
+								jet.apt = 3
+							
+							#If next to runway left: 
+							elif(PATHS[jet.path][jet.loc - 1] == 2):
+								if(RWL_OPEN):
+									jet.apt = 6
+									self.move(jet)
+									self.switch_paths(jet, ["South"])
+						
 			#-------------------------- If jet is going to gate: -------------------#
 			elif(jet.apt == 4):
+				print("Case 4")
 				#1a. Pick a random gate for the jet to go to if it hasn't been given one:
 				if(jet.target_gate == None):
 					jet.target_gate = pickGate() #target_gate is an integer index of the gate picked in the gates [] list.
@@ -143,27 +202,26 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 
 				# Check if gate path is next to us:
 				# If yes, then switch paths to that path
-				if(check_for_intersection(jet, jet.target_gate)):
-					switch_paths(jet)
-
-				#Set status of jet or move it:
-				if(gates[jet.target_gate].jet != False):
-					jet.apt = 5 #Set status of jet
+				if(jet.loc == jet.target_gate):
+					#"Move" jet to gate 
+					PATHS[jet.loc].p[jet.loc][3] = jet						
+					PATHS[jet.loc].p[jet.loc][1] = False
+					
+					#Set status of jet
+					jet.apt = 5	
 				else:
-					move_jet(jet)
-				
-		
-				pass
+					self.move_jet(jet)
 			
 			#-------------------------- If jet is at a gate: ------------------#
 			elif(jet.apt == 5):
+				print("Case 5")
 				# If the jet hasn't started the gate process, do so:
 				if(jet.time_at_gate > 0):					
 					index = jet.target_gate
-					gates[index].deboard(jet)	#1. Deboard passengers
-					gates[index].refuel(jet)	#2. Refuel and service
-					gates[index].service(jet)
-					gates[index].board(jet)		#3. Board Passengers					
+					self.deboard(jet)	#1. Deboard passengers
+					self.refuel(jet)	    #2. Refuel and service
+					self.service(jet)
+					self.board(jet)		#3. Board Passengers					
 				
 				# Decrease time at gate by one time tick
 				else: 
@@ -171,13 +229,18 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				
 				# If a jet is done with the gate process:
 				# change it's status to TXR - Taxiing to runway
-				# and undock the jet from the gate.
+				# Undock it from the gate and move it back on the path if the path is clear.
+				# We are not simulating the path to the gate beacuse we are pressed for time.
+				# We'll just add a little time the jet is at the gate to simulate the jet moving to and from the terminal. 
 				if(jet.time_at_gate == 0):
 					jet.apt = 3
-					gates[jet.target_gate].jet = False
+					PATH[jet.path].p[jet.loc].gate = False
+					PATH[jet.path].p[jet.loc].jet = jet
+
 			
 			#-------------------------- If jet is taking off: -----------------#
 			elif(jet.apt == 6):				
+				print("Case 2")
 				#Move the jet down the runway:
 				not_at_end = move(jet)
 
@@ -186,11 +249,12 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				if(not not_at_end):
 					NUM_JETS_TOOK_OFF += 1
 					jets.remove(jet)
+		print("End of update")
 
-	def change_runway_status(jet, open_or_closed):
+	def change_runway_status(self, jet, open_or_closed):
 		"""	Method for changing the status of a runway
 			Args: - open_or_closed : True or False
-					Used to open or close the runway
+				    Used to open or close the runway
 
 			! NOTE ! :	If opening a runway this must be called before jet is moved off the runway.
 						This method uses the jets current location to open the correct runway
@@ -213,7 +277,7 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 		"""
 
 		#Current location in a single path in PATHS
-		cur_loc = PATHS[jet.path][jet.loc] 
+		cur_loc = PATHS[jet.path].p[jet.loc] 
 
 		#If on an intersection:
 		if(cur_loc.label != False and target_path == None):
@@ -235,16 +299,16 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 			"""
 
 		path = PATHS[jet.path] 				
-		if(path[jet.loc][2] != False):
+		if(path.p[jet.loc][2] != False):
 
-			tup = PATHS[path[jet.loc][2]]	 #Grab tuple with info from the path point where jet is.
-			Nextpath = PATHS[tup[0]]		 #Grab potential path
+			tup = path.p[jet.loc][2]		#Grab tuple with info from the path point where jet is.
+			NextPath = PATHS[tup[0]]		#Grab potential path
 			correct_path_dir = False		
 			clear_ahead = False					
 
 			#Set valid_dirs to the directons based on apt_status of the jet. 
 			valid_dirs = [] 
-			if(direction != None):
+			if(directions != None):
 				valid_dirs = directions
 			elif(jet.apt == 3): #TXR 
 				valid_dirs = [ "East", "North-East", "South-East","None"]
@@ -252,9 +316,13 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				valid_dirs = [ "West", "North-West", "South-West", "None"]
 
 			# Check if the path has a valid direction and is not blocked
+
+			def jetAhead(jet):
+				return False
+
 			if(NextPath.dir in valid_dirs):
 				correct_path_dir = True
-			if(checkAhead(jet)): #Not implemented 
+			if(not jetAhead(jet)): #Not implemented 
 				clear_ahead = True
 
 			# If path has valid direction and is clear:
@@ -263,8 +331,8 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				jet.path = tup[0]
 				jet.loc	 = tup[1]
 		
-	def checkAhead(self, jet):
-		pass
+	def jetAhead(self, jet):
+		return false
 			
 	def pickGate(self):
 		"""	Picks an open gate at random for the jet to go to.
@@ -280,9 +348,9 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 		""" Reduces the speed of the jet by a calulated amount based on the jets weight, and current speed.
 			Currently reduces the jets speed by a constant
 		"""
-		jet.speed -= jet.speed - DELTA_SPEED #TALK TO SEAN, GET THIS FIXED
+		jet.speed -= jet.speed - DELTA_SPEED #May not even need this really. 
 
-	def move(jet):
+	def move(self, jet):
 		""" Method for moving a jet. This is done by changing which slot in a path list the jet occupies.
 			This method does not switch paths, it only checks for jet collision and path ending.
 
@@ -291,8 +359,8 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 		dD = 1	#Change in distance of the jet calculated by it's speed. Most jets will have the same speed: TAXI_SPEED
 		path = PATHS[jet.path]
 		
-		def changeListPosition(positive): 
-			"""Nested function for changing the position of a jet in a list """
+		def changeListPosition(positive, dD): 
+			"""Nested function for changing the position of a jet in a list """			
 			if(not positive):
 				dD = dD - 2*dD
 
@@ -306,17 +374,29 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				j = i
 				if(not positive):
 					j = -i 
-				index = PATHS[jet.path][jet.loc + j][2][0] 
-				if(index == 0 or 1 or 2):
-					if(index == 0):
-						if(not RWL_OPEN):
-							return False
-					if(index == 1):
-						if(not RWM_OPEN):
-							return False
-					if(index == 2):
-						if(not RWR_OPEN):
-							return False		
+				temp = PATHS[jet.path].p[jet.loc + j][2] 
+				if(temp != False):
+					index = PATHS[jet.path].p[jet.loc + j][2][0] 
+					if(index == 0 or 1 or 2):
+						if(index == 0):
+							if(not RWL_OPEN):
+								return False
+						
+							#If the jet is taxiing to a runway it should not step onto the runway.
+							elif(jet.apt == 3): 
+								return False
+
+						elif(index == 1):
+							if(not RWM_OPEN):
+								return False
+							elif(jet.apt == 3):
+								return False
+
+						elif(index == 2):
+							if(not RWR_OPEN):
+								return False		
+							elif(jet.apt == 3):
+								return False
 			
 			#Check if the path ends:
 			end_path = False
@@ -331,16 +411,16 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 				return False
 	
 		if(path.dir == "East" or path.dir == "North"):
-			return changeListPosition(True)
+			return changeListPosition(True, dD)
 
 		if(path.dir == "West" or path.dir == "South"):
-			return changeListPosition(False)
+			return changeListPosition(False, dD)
 
 		if(path.dir == "South-East" or path.dir == "North-East"):						
-			return changeListPosition(True)
+			return changeListPosition(True, dD)
 
 		if(path.dir == "North-West" or path.dir == "South-West"):
-			return changeListPosition(False)
+			return changeListPosition(False, dD)
 
 
 	#May not need these? vvvvvvvv 
@@ -364,10 +444,22 @@ class GTC:	#Ground Traffic Control: Serves as main logic controller of simulatio
 			pass
 		#- it will be listed as the first jet on the runway
 
+
+	#================= Gate Methods =========================#
+	def refuel(self, jet):		
+		jet.fuel = FUEL_MAX
+		jet.time_at_gate += TIME_TO_REFUEL
+
+	def deboard(self, jet): 		
+		jet.time_at_gate += TIME_TO_DEBOARD
+	
+	def service(self, jet):		
+		jet.time_at_gate += TIME_TO_SERVICE					
+
+	def board(self, jet):					#After being serviced, board passengers
+		jet.time_at_gate += TIME_TO_BOARD   #This takes TIME_TO_BOARD amount of time	
+
 class Path:
-	def __init__(self, dir = "None", list = []):		
-		self.dir = dir
-		self.p = list
 	#Note:	Tuple: (Index of path in PATHS which intersects THIS path, index of point in path which intersects this path)						
 	#
 	#		After you've created this path, you may create other paths which intersect this path. 
@@ -383,52 +475,9 @@ class Path:
 	#															    [ (1, 1), jet, (index of intersecting path, index of point in intersecting path)
 																 
 	#Accessing the label:	PATHS[path index][point index][2][ pick 0 or 1 ] ^^^^^^^^^
-
-
-class Gate: #Base Terminal class
-	def __init__(self, x,y):
-		self.loc = (x,y)	#Location of terminal
-		self.jet = False;	#Each terminal can hold a single jet		
-		
-	def refuel(self, jet):		
-		jet.fuel = FUEL_MAX
-		jet.time_at_gate += TIME_TO_REFUEL
-
-	def deboard(self, jet): 		
-		jet.time_at_gate += TIME_TO_DEBOARD
-	
-	def service(self, jet):		
-		jet.time_at_gate += TIME_TO_SERVICE					
-
-	def board(self, jet):					#After being serviced, board passengers
-		jet.time_at_gate += TIME_TO_BOARD   #This takes TIME_TO_BOARD amount of time	
-
-#class P_Gate(Gate): #Passenger Terminal
-#	def __init__(self):
-#		pass
-
-#	def deboard_passengers(self, jet): 
-#		pass
-
-#	def service(self, jet):		#After deboarding, the jet must be made ready for the next trip
-#		pass					#This process takes TIME_TO_SERVICE amount of time
-
-#	def board_passengers(self, jet):	#After being serviced, board passengers
-#		pass							#This takes TIME_TO_BOARD amount of time	
-	
-#class C_Gate(Gate): #Cargo Terminal
-#	def __init__(self, x, y):
-#		self.loc = (x,y)
-
-#	def unload_cargo(self, jet):
-#		pass
-
-#	def service(self, jet):
-#		pass
-
-#	def load_cargo(self, jet):
-#		pass
-
+	def __init__(self, dir = "None", list = []):		
+		self.dir = dir
+		self.p = list
 #=========================== SIMULATION OBJECTS ==============================#
 
 #============================== JET STATUSES =================================#
