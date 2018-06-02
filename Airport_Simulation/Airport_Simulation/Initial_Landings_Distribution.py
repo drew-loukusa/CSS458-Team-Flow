@@ -128,7 +128,7 @@ def GeneratePlaneDistribution(hour_start=0, hour_end=24, landing_limit=1139, reg
 	
 
 def RandP():	
-	return random.random()
+	return round(random.random(), 1)
 
 def generateLanding(landingTime, landingDeviation):
     tempRunway = random.randint(0,1)
